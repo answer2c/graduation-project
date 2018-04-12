@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+<title>留言板</title>
+<link rel="stylesheet" href="SITE_URL/static/css/home.css">
+<link rel="stylesheet" href="SITE_URL/static/css/bootstrap.min.css"> 
+<link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
+
+</head>
+<body>
+
+
+     
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-static-top navbar-inverse">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <span id="mytitle" class="nav-brand">ybc</span>
+                        <button class="navbar-toggle" data-target=".hidemenu" data-toggle="collapse">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                        </button>
+
+                    </div>
+
+                    <div class="collapse navbar-collapse hidemenu">
+                            <ul class="nav navbar-nav navbar-left">
+                                <li><a href="{:url('/index')}">首页</a></li>
+                                <li><a href="{:url('/blog')}">博客</a></li>
+                                <li class="active"><a href="{:url('/Mess')}">留言</a></li>
+                                <li><a href="{:url('/contact')}">联系我</a></li>
+                               
+
+                            </ul>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="./index/index/index" >登录</a></li>
+                                <li><a href="#">注册</a></li>
+
+                            </ul>
+                       
+                    </div>
+                </div>
+
+        </nav>
+     <!-- 导航栏结束 -->
+
+     <!-- 留言内容-->
+        <div class="container">
+            
+
+
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+     <!-- 发表留言-->
+     <div class="container">
+                   
+        <form action="./?c=FormHandle&m=loginhandle" method="post" class="form-horizontal">
+                <div class="form-group">
+                        
+                    <label for="username" class="col-xs-5 col-sm-3 control-label">用户名：</label>
+                    <div class="col-xs-8 col-sm-5">
+                        <input type="text" id="username" class="form-control" name="username" placeholder='username'>
+                    
+                    </div>                           
+                 </div>
+
+                <div class="form-group">
+                        <label for="content" class="col-xs-2 col-sm-3 control-label">内容：</label>
+                        <div class="col-xs-6">
+                                <textarea name="" id="content" cols="40" rows="10"></textarea> 
+
+                        </div>
+                                   
+                </div>
+
+                
+                <div class="form-group">
+                        <div class="col-md-offset-4 col-sm-2 col-xs-3 col-xs-offset-3">                        
+                                <input type="submit" name="sub" value="提交" class="btn btn-success"  >
+                        </div>                   
+                </div>
+                  
+         </form>
+      
+
+  
+
+              
+    </div> 
+
+
+       
+             
+
+
+   
+   
+    <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
+    <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+<title>ybc</title>
+<link rel="stylesheet" href="SITE_URL/static/css/home.css">
+<link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css"> 
+<link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
+
+</head>
+<body>
+
+
+     
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-static-top navbar-inverse">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <span id="mytitle" class="nav-brand">ybc</span>
+                        <button class="navbar-toggle" data-target=".hidemenu" data-toggle="collapse">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                        </button>
+
+                    </div>
+
+                    <div class="collapse navbar-collapse hidemenu">
+                            <ul class="nav navbar-nav navbar-left">
+                                <li class="active"><a href="#">首页</a></li>
+                                <li><a href="{:url('/blog')}">博客</a></li>
+                                <li><a href="{:url('/Mess')}">留言</a></li>
+                                <li><a href="{:url('/contact')}">联系我</a></li>
+                               
+
+                            </ul>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="#" onclick="loginpage()">登录</a></li>
+                                <li><a href="#">注册</a></li>
+
+                            </ul>
+                       
+                    </div>
+                    
+
+
+
+
+
+                </div>
+
+        </nav>
+     <!-- 导航栏结束 -->
+
+        <div class="container-fluid" id="mybanner">
+            <div class="row">
+                <div class="col-xs-13 banner-img">
+                    <img  src="SITE_URL/static/image/banner.jpg" alt="" class="img-responsive">
+                </div>
+            </div>
+
+
+            <div class="AboutMe">
+                    <img src="SITE_URL/static/image/ybc6.jpg" alt="" class="myphoto">
+                    <div class="" id="introduce">
+                        <p class="text-center"> 我是杨保川</p>
+                        <p class="text-center"> 喜欢编程和篮球</p>
+                        <p class="text-center">欢迎访问我的网站</p>
+                    </div>
+
+                    <span class="glyphicon glyphicon-arrow-down"></span>
+
+             </div>
+        </div>
+
+             
+
+
+        <footer class="container-fluid">
+            <div class="row"> 
+                <div class="">
+                        <p class="text-center">晋ICP备18000676号-1</p>
+                </div>  
+             
+            </div>
+            <div class="row">
+                <p class="text-center">
+                    <a  target="_blank"  id="ba" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=14010802080152">
+                        <img src="SITE_URL/static/image/gaba.png "/>
+                        晋公网安备 14010802080152号
+                     </a>
+                </p>
+            </div>
+                  
+
+        </footer>
+
+        
+    <script src="SITE_URL/static/js/myjs.js"></script>
+    <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
+    <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+</body>
+</html>

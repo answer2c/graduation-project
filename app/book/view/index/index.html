@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图书共享网站</title>
+    <link rel="stylesheet" href="SITE_URL/static/css/book.css">
+    <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css"> 
+    <link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
+    <style>
+         @font-face {
+        font-family: 'Glyphicons Halflings';
+      
+        src: url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.eot');
+        src: url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg'),
+        url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.woff2') format('woff2'),url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.woff') format('woff');
+      }
+      .showbook{
+          width:100px;
+          height:200px;
+      }
+
+    </style>
+  
+</head>
+<body>
+
+
+
+     
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-static-top navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <span id="mytitle" class="nav-brand">BookShare</span>
+                    <button class="navbar-toggle" data-target=".hidemenu" data-toggle="collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                    </button>
+
+                </div>
+
+                <div class="collapse navbar-collapse hidemenu">
+                        <ul class="nav navbar-nav navbar-left">
+                            <li class="active"><a href="#">首页</a></li>
+                            <li><a href="{:url('/book/index/lend')}">借书</a></li>
+                            <li><a href="#">还书</a></li>
+                            <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
+                            <li class="dropdown" >
+                                <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class=""><a href="" >借书流程</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="">常见问题</a></li>
+                                
+                                </ul>
+                            
+                            
+                            </li>
+                           
+
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            {$loginMess}
+
+                        </ul>
+                   
+                </div>
+            </div>
+
+    </nav>
+ <!-- 导航栏结束 -->
+
+ 
+ <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+    <!-- Indicators -->
+    <ol class="carousel-indicators">
+      <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+      <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+     
+    </ol>
+  
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner" role="listbox">
+        <div class="item active">
+            <img src="SITE_URL/static/image/bs1.jpg" alt="...">
+            <div class="carousel-caption">
+            <h3>理想的书籍，是智慧的钥匙。</h3>
+            <br><br>
+            <a class="btn btn-primary btn-lg" href="/book/index/lend">立即借书</a>
+            </div>
+        </div>
+        
+        <div class="item" id="lbt2">
+            <img src="SITE_URL/static/image/bs2.jpg" alt="...">
+            <div class="carousel-caption">
+               <h3> 外物之味，久则可厌，读书之味，愈久愈深。</h3>
+               <button class="btn btn-primary btn-lg">查看更多</button>
+            </div>
+        </div>
+     
+    </div>
+  
+    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+         
+    </a>
+    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+            
+    </a>
+  </div>
+
+  <!-- 热度展示 -->
+  <div class="col-sm-offset-1"><h4>借阅热度排行 <span class="label label-default">hot</span></h4></div>
+  <div class="row">
+    <div class="col-sm-2 col-md-2 col-sm-offset-1">
+      <div class="thumbnail">
+        <img src={$book1img} alt="..." class="showbook">
+        <div class="caption">
+          <h3>{$book1name}</h3>      
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-2 col-md-2">
+        <div class="thumbnail">
+          <img src={$book2img} alt="..." class="showbook">
+          <div class="caption">
+            <h3>{$book2name}</h3>      
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-2 col-md-2">
+        <div class="thumbnail">
+          <img src={$book3img} alt="..." class="showbook">
+          <div class="caption">
+            <h3>{$book3name}</h3>      
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-2 col-md-2">
+        <div class="thumbnail">
+          <img src={$book4img} alt="..." class="showbook">
+          <div class="caption">
+            <h3>{$book4name}</h3>      
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-2 col-md-2">
+        <div class="thumbnail">
+          <img src={$book5img} alt="..." class="showbook">
+          <div class="caption">
+            <h3>{$book5name}</h3>      
+          </div>
+        </div>
+      </div>
+
+    
+  </div>
+
+
+
+
+
+
+  
+
+<!-- 登录模块 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">登录</h4>
+                </div>
+                <form action="/book/index/login" method="post" class="form-horizontal">
+                    <div class="modal-body">
+                          
+                            <div class="form-group">
+                                    
+                                <label for="username" class="col-xs-5 col-sm-3 control-label">用户名：</label>
+                                <div class="col-xs-8 col-sm-5">
+                                    <input type="text" id="username" class="form-control" name="username" placeholder='username'>
+                                
+                                </div>                           
+                             </div>
+
+                            <div class="form-group">
+                         
+                                <label for="pwd" class="col-xs-5 col-sm-3 control-label">密码：</label>
+                                <div class="col-xs-8 col-sm-5">
+                                    <input type="password" id="pwd" class="form-control" name="pwd" placeholder='password'>
+                                    
+                                </div>                 
+                            </div>
+
+                            
+                       
+                              
+                
+                  
+                    </div>
+                  
+                <div class="modal-footer">
+                   <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101458359&redirect_uri={$redirect_uri}&scope=get_user_info&state=12" >
+                        <img src="SITE_URL/static/image/qqs_login.png">
+                                 </a>
+                
+                         
+                    <input type="submit" class="btn btn-primary" value="登录">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    
+                </div>
+
+            </form>
+            </div>
+        </div>
+</div>
+
+
+
+
+
+
+   
+    <script src="SITE_URL/static/js/test.js"></script>
+    <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
+    <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+
+</body>
+</html>
