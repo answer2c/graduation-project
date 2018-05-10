@@ -7,155 +7,140 @@
     <title>借书</title>
 
     <link rel="stylesheet" href="SITE_URL/static/css/book.css">
-    <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css"> 
+    <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css">
     <link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
+    <style>
+        #bookphoto{
+            display: inline-block !important;
+            width:100px !important;
+            height:150px !important;
+        }
+        .booktag{
+            margin-right:8px;
+        }
+        .showbook{
+            width:200px;
+            height:300px;
+        }
+
+
+    </style>
 </head>
 <body>
 
 
 
-     
-        <!-- 导航栏 -->
-        <nav class="navbar navbar-static-top navbar-inverse">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <span id="mytitle" class="nav-brand">BookShare</span>
-                    <button class="navbar-toggle" data-target=".hidemenu" data-toggle="collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                    </button>
 
-                </div>
+<!-- 导航栏 -->
+<nav class="navbar navbar-static-top navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <span id="mytitle" class="nav-brand">BookShare</span>
+            <button class="navbar-toggle" data-target=".hidemenu" data-toggle="collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
 
-                <div class="collapse navbar-collapse hidemenu">
-                        <ul class="nav navbar-nav navbar-left">
-                            <li><a href="{:url('/book')}">首页</a></li>
-                            <li><a href="{:url('/book/index/lend')}">借书</a></li>
-                            <li><a href="#">还书</a></li>
-                            <li><a href="#">上传书籍</a></li>
-                            <li class="dropdown" >
-                                <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
-                                    <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li class=""><a href="#" >借书流程</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="#">常见问题</a></li>
-                                
-                                </ul>
-                            
-                            
-                            </li>
-                           
-
-                        </ul>
-                      
-                   
-                </div>
-            </div>
-
-    </nav>
- <!-- 导航栏结束 -->
-
- 
- 
- <div class="container">
-                   
-    <form action="/book/index/adduser" method="post" class="form-horizontal" id="myform">
-        <div class="form-group has-feedback ">
-            
-               <label for="username" class="col-xs-5 col-sm-3 control-label">ISBN号：</label>
-               <div class="col-xs-8 col-sm-5">
-                <input type="text" id="username" class="form-control ajaxcheck" name="username" placeholder="ISBN">
-                <input type="button" name="sub" value="确认" id="sub" class="btn btn-success" >
-                    <span class="tip" id="nametip"></span>
-               </div> 
-              
         </div>
 
-      
+        <div class="collapse navbar-collapse hidemenu">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="{:url('/book')}">首页</a></li>
+                <li><a href="{:url('/book/index/lend')}">借书</a></li>
+                <li><a href="#">还书</a></li>
+                <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
+                <li class="dropdown" >
+                    <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class=""><a href="#" >借书流程</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">常见问题</a></li>
+
+                    </ul>
 
 
-        <div class="detail">
-            <div class="form-group">
-                
-                <label for="pwd" class="col-xs-5 col-sm-3 control-label">密码：</label>
-                <div class="col-xs-8 col-sm-5">
-                    <input type="password" id="pwd" class="form-control" name="pwd" placeholder="password">
-                    <span class="tip"></span>
-                </div>                 
-            </div>
+                </li>
 
-            <div class="form-group">
-                
-                <label for="pwd-c" class="col-xs-5 col-sm-3 control-label">确认密码：</label>
-                <div class="col-xs-8 col-sm-5">
-                <input type="password" id="pwd-c" class="form-control" name="pwd-c" placeholder="password">
-                <span class="tip"></span>
-                </div>                 
-            </div>
 
-        
+            </ul>
 
-            
-            <div class="form-group">
-                
-                <label for="tel" class="col-xs-5 col-sm-3 control-label">电话号码：</label>
-                <div class="col-xs-8 col-sm-5">
-                <input type="text" id="tel" class="form-control" name="tel" placeholder="telephone number">
-                <span class="tip"></span>
 
-                </div>                 
-            </div>
-
-            <div class="form-group">
-                
-                <label for="email" class="col-xs-5 col-sm-3 control-label" >电子邮箱：</label>
-                <div class="col-xs-8 col-sm-5">
-                <input type="text" id="email" class="form-control" name="email" placeholder="email">
-                <span class="tip"></span>
-
-                </div>                 
-            </div>
-
-            <div class="form-group">
-                
-                <label for="idnum" class="col-xs-5 col-sm-3 control-label">证件号码：</label>
-                <div class="col-xs-8 col-sm-5">
-                <input type="text" id="idnum" class="form-control" name="idnum" placeholder="ID NUMBER">
-                <span class="tip"></span>
-                </div>                 
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-offset-4 col-sm-2 col-xs-3">
-                <input type="button" name="sub" value="确认" id="sub" class="btn btn-success" >
-                </div>
-                <div class="col-sm-4 col-xs-3">
-                <input type="reset" value="重置" class="btn btn-danger">
-                </div>
-            </div>
+        </div>
     </div>
+
+</nav>
+<!-- 导航栏结束 -->
+
+
+
+<div class="container">
+
+    <form action="/book/index/lend" method="GET" class="form-horizontal" id="myform">
+        <div class="form-group has-feedback ">
+
+            <label for="isbn" class="col-xs-5 col-sm-3 control-label">书名 / 作者 / ISBN号：</label>
+            <div class="col-xs-8 col-sm-5">
+                <div class="input-group">
+                    <input type="text" id="isbn" class="form-control ajaxcheck" name="book" value={$Think.get.book} placeholder="请输入要搜索的书籍">
+                    <span class="input-group-btn">
+                        <input type="button" name="sub" value="搜索" id="sub" class="btn btn-success" >
+                    </span>
+                </div>
+
+
+            </div>
+
+        </div>
+
     </form>
-    
+    <br><br><br>
+    {foreach $tags as $tag }
+    <a href="SITE_URL/book/index/lend/?tag={$tag.number}" class="booktag">{$tag.tagname}</a>
+    {/foreach}
+    <hr>
+
+
+        <div class="row">
+            {if condition="(!empty($bookList))")}
+             <p>共搜索到{$total['total']}本书籍</p>
+                {foreach $bookList as $book}
+                    <div class="col-sm-4 col-md-3">
+                        <div class="thumbnail">
+                            <img src="{$book['img']}" alt="..." class="showbook">
+                            <div class="caption">
+                                <h3>{$book['bookname']}</h3>
+                                <p>作者：{$book['author']}</p>
+                                <p><a href="#" class="btn btn-primary" role="button">借这本书</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                            </div>
+                        </div>
+                    </div>
+                {/foreach}
+            {else /}
+              <p style="color:darkgray">抱歉，暂时没有符合条件的书籍</p>
+
+            {/if}
+
+        </div>
 
 
 
 
 
-  
-</div> 
+
+</div>
 
 
 
 
 
 
-   
-    
-    <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
-    <script src="SITE_URL/static/js/bootstrap.min.js"></script>
-    <script src="SITE_URL/static/js/myjs1.js"></script>
+
+
+<script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
+<script src="SITE_URL/static/js/bootstrap.min.js"></script>
+<script src="SITE_URL/static/js/upload.js"></script>
 </body>
 </html>

@@ -73,7 +73,7 @@
  
  <div class="container">
                    
-    <form action="/book/index/addbook" method="post" class="form-horizontal" id="myform">
+    <form action="" method="post" class="form-horizontal" id="myform">
         <div class="form-group has-feedback ">
             
                <label for="isbn" class="col-xs-5 col-sm-3 control-label">ISBN号：</label>
@@ -148,7 +148,7 @@
 
             <div class="form-group">
                 <div class="col-md-offset-4 col-sm-2 col-xs-3">
-                <input type="submit" name="sub2" value="上传" id="sub2" class="btn btn-success" >
+                <input type="button" name="sub2" value="上传" id="sub2" class="btn btn-success" >
                 </div>
                 <div class="col-sm-4 col-xs-3">
                 <input type="button" value="重新输入" class="btn btn-danger" id="reset">
@@ -178,7 +178,7 @@
     <script src="SITE_URL/static/js/upload.js"></script>
     <script>
  
- $("#sub").click(function(){
+    $("#sub").click(function(){
         if($("#isbn").val()==""){
             alert('不能为空！');
         }else{
@@ -192,7 +192,6 @@
                     $(".detail").show();
                 }
                 $("#sub").hide();
-                console.log(result);
                 $("#isbn").attr("readonly",true);
                 $("#isbn").attr("disabled",false);
                 $("#bookname").val(result.title);
@@ -216,7 +215,36 @@
             })
         }
     })
-    
+    $("#sub2").click(function(){
+        var isbn = $("#isbn").val();
+        var bookimg = $("#bookimg").val();
+        var bookname = $("#bookname").val();
+        var author = $("#author").val();
+        var publisher = $("#publisher").val();
+        var pubdate = $("#pubdate").val();
+        var booktag = $("#booktag").val();
+        var price = $("#price").val();
+        var data="&isbn="+isbn+"&bookimg="+bookimg+"&bookname="+bookname+"&author="+author+"&publisher="+publisher+"&pubdate="+pubdate+"&booktag="+booktag+"&price="+price;
+
+            $.ajax({
+            type:"post",
+            url:"/book/index/addbook",
+            data:data,
+            dataType:"json",
+            success:function(result){
+                if(result.status == 1){
+                    alert(result.data);
+                    window.location='/book/index/'
+                }else{
+                    alert('上传失败');
+                }
+            },
+            error:function(result){
+                console.log(result);
+                // alert('上传失败');
+            }
+        })
+    })
     </script>
 </body>
 </html>

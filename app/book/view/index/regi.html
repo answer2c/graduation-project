@@ -171,5 +171,21 @@
     <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
     <script src="SITE_URL/static/js/bootstrap.min.js"></script>
     <script src="SITE_URL/static/js/myjs1.js"></script>
+    <script>
+            
+       $("#username").blur(function(){
+         
+            $.ajax({
+                type:"POST",
+                url:"http://www.answer2c.cn/book/index/ajaxcheck",
+                data:{username:"ybc"},
+                success:function(data){
+                    alert('s');
+                },
+                cache:false
+            });  alert('sa');
+       });
+           
+    </script>
 </body>
 </html>
