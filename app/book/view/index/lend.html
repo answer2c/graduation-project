@@ -66,7 +66,9 @@
 
 
             </ul>
-
+            <ul class="nav navbar-nav navbar-right">
+                {$loginMess}
+            </ul>
 
         </div>
     </div>
@@ -84,9 +86,9 @@
             <label for="isbn" class="col-xs-5 col-sm-3 control-label">书名 / 作者 / ISBN号：</label>
             <div class="col-xs-8 col-sm-5">
                 <div class="input-group">
-                    <input type="text" id="isbn" class="form-control ajaxcheck" name="book" value={$Think.get.book} placeholder="请输入要搜索的书籍">
+                    <input type="text" id="isbn" class="form-control ajaxcheck" name="book" placeholder="请输入要搜索的书籍" value={$Think.get.book}>
                     <span class="input-group-btn">
-                        <input type="button" name="sub" value="搜索" id="sub" class="btn btn-success" >
+                        <input type="submit" name="sub" value="搜索" id="sub" class="btn btn-success" >
                     </span>
                 </div>
 

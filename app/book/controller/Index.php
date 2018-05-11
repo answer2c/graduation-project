@@ -163,6 +163,9 @@
                 echo "<script>alert('请先登录');window.location='/book/index';</script>";
             
             }else{
+                $login=$this->checkUser();
+                $this->assign('username',Session::get('username'));
+                $this->assign('loginMess',$login);
                 $tags=Db::table('tags')->field('number,tagname')->select();
                 $this->assign('tags',$tags);
                  $where = '';
@@ -227,7 +230,6 @@
             $price = substr($request->post('price'), 0, -3);
             $bookimg = $request->post('bookimg');
 //
-//
 //           //查看当前书籍信息是否存在
             $ifbook = Db::table('book')->where('isbn', $isbn)->select();
             if (!empty($ifbook)) {
@@ -241,19 +243,21 @@
                     } else {
                         die(json_encode(array('status' => 0, 'data' => '上传失败')));
                     }
+                }else{
+                    die(json_encode(array('status' => 0, 'data' => '您已上传过该书')));
                 }
 
             }else {
-//                //添加新的图书信息
+                //添加新的图书信息
                 $bookdata = ['isbn' => $isbn, 'author' => $author, 'publisher' => $publisher, 'pubdate' => $pubdate, 'price' => $price, 'bookname' => $bookname, 'img' => $bookimg];
                 $insertBook=Db::table('book')->insert($bookdata);
-                if($insertBook !=1){
+                if($insertBook != 1){
                     die(json_encode(array('status' => 0, 'data' => '上传失败')));
                 }
                 //添加上传表数据
                 $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
                 $ifupload=Db::table('upload')->insert($uploaddata);
-                if($ifupload !=1) {
+                if($ifupload != 1) {
                     die(json_encode(array('status' => 0, 'data' => '上传失败')));
                 }
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
@@ -262,8 +266,10 @@
                         if (!empty($result)) {
                             $tagnumber = $result[0]['number'];
                             $num = $result[0]['sum'] + 1;
-                            Db::table('tags')->where('tagname', $booktag[$i])->update(['sum' => $num]);//更新标签的sum
-
+                            $ifupload=Db::table('tags')->where('tagname', $booktag[$i])->update(['sum' => $num]);//更新标签的sum
+                            if($ifupload < 1){
+                                die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                            }
                             $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
                             $ifsuccess = Db::table('booktag')->insert($booktagdata);
                             if ($ifsuccess < 1) {
@@ -273,39 +279,29 @@
                         }
                     }
 
+              //若无对应标签，则默认添加至‘其它’标签中
+                   if($iftag == 0){
+                        $result = Db::table('tags')->where('number',48)->select();
+                        $num = $result[0]['sum'] + 1;
+                       //更新其它标签的sum
+                       $if_update =Db::query("update tags set sum =".$num." where number = 48");
+                       if($if_update === false){
+                           die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                       }
+                        $booktagdata=['isbn'=>$isbn,'tagnumber'=>$result[0]['number']];
+                        $ifsuccess=Db::table('booktag')->insert($booktagdata);
+                        if($ifsuccess < 1){
+                            die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                        }else {
+                            die(json_encode(array('status' => 1, 'data' => '上传成功')));
+                        }
+                   }else{
+                       die(json_encode(array('status' => 1, 'data' => '上传成功')));
+                   }
 
+                 }
 
-
-
-                }
-
-//
-//
-//
-
-////
-////              //若无对应标签，则默认添加至‘其它’标签中
-////                   if($iftag==0){
-////                    $result=Db::table('tags')->where('number',48)->select();
-////                    $num=$result[0]['sum']+1;
-////                    Db::table('tags')->where('number',48)->update(['sum'=>$num]);//更新其它标签的sum
-////                    $booktagdata=['isbn'=>$isbn,'tagnumber'=>$result[0]['number']];
-////                    $ifsuccess=Db::table('booktag')->insert($booktagdata);
-////                    if($ifsuccess<1){
-////                        $this->error('上传失败');
-////                    }
-////
-////                   }
-////
-////           }
-////
-////           $this->success('上传成功','/book/');
-//
-//
-//            }
-
-
-        }
+           }
 
 
 
