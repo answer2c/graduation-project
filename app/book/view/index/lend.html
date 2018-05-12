@@ -20,9 +20,23 @@
         }
         .showbook{
             width:200px;
-            height:300px;
+            height:270px !important;
+        }
+        .book_module{
+            height:450px;
         }
 
+        .book_btn{
+            position:absolute;
+            bottom:0px;
+        }
+
+        .b1{
+            position: relative !important;
+        }
+        .test{
+            background-color: white;
+        }
 
     </style>
 </head>
@@ -110,12 +124,12 @@
              <p>共搜索到{$total['total']}本书籍</p>
                 {foreach $bookList as $book}
                     <div class="col-sm-4 col-md-3">
-                        <div class="thumbnail">
+                        <div class="thumbnail book_module  b1">
                             <img src="{$book['img']}" alt="..." class="showbook">
-                            <div class="caption">
+                            <div class="caption" >
                                 <h3>{$book['bookname']}</h3>
                                 <p>作者：{$book['author']}</p>
-                                <p><a href="#" class="btn btn-primary" role="button">借这本书</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                                <p class="book_btn"><a href="#" class="btn btn-primary" role="button">借这本书</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
                             </div>
                         </div>
                     </div>
@@ -128,8 +142,35 @@
         </div>
 
 
+    {if condition="($pages > 0 && $pageStart > 0 && $pageEnd >0)"}
+        <nav aria-label="..." class="test">
+            <ul class="pagination">
+                <li class="disabled">
+                  <span>
+                    <span aria-hidden="true">&laquo;</span>
+                  </span>
+                </li>
 
+                {for start="$pageStart" end="$pageEnd+1" name="i" }
+                    {if condition="($Think.get.page == $i)")}
+                        <li class="active" onclick="turnPage({$i})">
+                    {else /}
+                        <li  onclick="turnPage({$i})">
+                    {/if}
+                            <span>{$i}</span>
+                         </li>
+                {/for}
 
+                <li class="" >
+                  <span>
+                    <span aria-hidden="true">&raquo;</span>
+                  </span>
+                </li>
+
+            </ul>
+        </nav>
+
+    {/if}
 
 
 </div>
@@ -144,5 +185,11 @@
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
+<script>
+    function turnPage(num){
+
+    }
+
+</script>
 </body>
 </html>

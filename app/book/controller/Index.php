@@ -163,14 +163,17 @@
                 echo "<script>alert('请先登录');window.location='/book/index';</script>";
             
             }else{
-                $login=$this->checkUser();
-                $this->assign('username',Session::get('username'));
-                $this->assign('loginMess',$login);
-                $tags=Db::table('tags')->field('number,tagname')->select();
-                $this->assign('tags',$tags);
+                 $login=$this->checkUser();
+                 $this->assign('username',Session::get('username'));
+                 $this->assign('loginMess',$login);
+
+                 $tags=Db::table('tags')->field('number,tagname')->select();
+                 $this->assign('tags',$tags);
                  $where = '';
+
+                 //确定where条件
                  if (isset($_GET['book'])){
-                     $where.="and isbn = '".$_GET['book']."' or bookname = '".$_GET['book']."' or author like '%".$_GET['book']."%'";
+                     $where.="and isbn = '".$_GET['book']."' or bookname  like '%".$_GET['book']."%' or author like '%".$_GET['book']."%'";
                  }
                  if(isset($_GET['tag'])){
                      $sql = "select isbn from booktag where tagnumber = ".$_GET['tag'];
@@ -187,13 +190,48 @@
                      }
                  }
 
-                 $sql="select * from book where 1=1 ".$where;
-                 $totalSql="select count(*) as total from book where 1=1 ".$where;
-                 $total=Db::query($totalSql);
-                 $bookList=Db::query($sql);
-                 $this->assign('total',$total[0]);
-                 $this->assign('bookList',$bookList);
-                 return $this->fetch();
+                 //确定limit条件与页数
+                 $limit  = 20;
+                 $offset = 0;
+                 $totalSql = "select count(*) as total from book where 1=1 ".$where;
+                 $total = Db::query($totalSql);
+                 $pages = ceil($total[0]['total'] / $limit);
+
+                 //确定分页信息
+                 if (isset($_GET['page'])){
+                    if ($_GET['page'] > $pages){
+                        $this->assign('pageStart',0);
+                        $this->assign('pageEnd',0);
+                    }else{
+                        $j = $_GET['page'];
+                        while($j > 1 && $j > $_GET['page'] - 3){
+                            $j--;
+                        }
+                        $pageStart = $j;
+
+                        $i = $_GET['page'];
+                        while($i < $pages && $i < $_GET['page'] + 4){
+                            $i++;
+                        }
+                        $pageEnd = $i;
+
+                        $this->assign('pageStart',$pageStart);
+                        $this->assign('pageEnd',$pageEnd);
+
+
+                    }
+                     $offset = $limit * ($_GET['page'] - 1);
+                }
+
+                //搜索所有符合条件的书籍
+                $sql = "select * from book where 1=1 ".$where." limit {$offset},{$limit}";
+                $bookList = Db::query($sql);
+
+                $this->assign('total',$total[0]);
+//                 $this->assign('pages',ceil($total[0]['total']/20));
+                $this->assign('pages',$pages);
+                $this->assign('bookList',$bookList);
+                return $this->fetch();
             }
            
         }
@@ -229,7 +267,7 @@
             $booktag = explode(' ', $request->post('booktag'));
             $price = substr($request->post('price'), 0, -3);
             $bookimg = $request->post('bookimg');
-//
+
 //           //查看当前书籍信息是否存在
             $ifbook = Db::table('book')->where('isbn', $isbn)->select();
             if (!empty($ifbook)) {
