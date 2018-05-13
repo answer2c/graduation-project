@@ -6,6 +6,7 @@
     use \think\Request;
     use \think\Db;
     use app\book\model\User;
+    use app\common\Page;
 
     class Index extends Controller{
         public static $redirect_uri='http://www.answer2c.cn/book/index/callback';
@@ -197,11 +198,18 @@
                  $total = Db::query($totalSql);
                  $pages = ceil($total[0]['total'] / $limit);
 
+
                  //确定分页信息
-                 if (isset($_GET['page'])){
+                $pageStart = 0;
+                $pageEnd = 0;
+                if(!isset($_GET['page'])){
+                    $_GET['page'] = 1;
+                }
+
+
                     if ($_GET['page'] > $pages){
-                        $this->assign('pageStart',0);
-                        $this->assign('pageEnd',0);
+                        $pageStart = 0;
+                        $pageEnd = 0;
                     }else{
                         $j = $_GET['page'];
                         while($j > 1 && $j > $_GET['page'] - 3){
@@ -214,21 +222,20 @@
                             $i++;
                         }
                         $pageEnd = $i;
-
-                        $this->assign('pageStart',$pageStart);
-                        $this->assign('pageEnd',$pageEnd);
-
-
                     }
+
                      $offset = $limit * ($_GET['page'] - 1);
-                }
+
+
+                $this->assign('pageStart',$pageStart);
+                $this->assign('pageEnd',$pageEnd);
 
                 //搜索所有符合条件的书籍
                 $sql = "select * from book where 1=1 ".$where." limit {$offset},{$limit}";
                 $bookList = Db::query($sql);
 
+                $this->assign('getPage',$_GET['page']);
                 $this->assign('total',$total[0]);
-//                 $this->assign('pages',ceil($total[0]['total']/20));
                 $this->assign('pages',$pages);
                 $this->assign('bookList',$bookList);
                 return $this->fetch();
@@ -352,6 +359,13 @@
             $this->assign('username',$result['0']['username']);
             
             return $this->fetch();
+        }
+
+
+
+        public function testPage(){
+            $page =new Page();
+            var_dump($page);
         }
 
     }

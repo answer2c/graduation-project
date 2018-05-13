@@ -38,6 +38,10 @@
             background-color: white;
         }
 
+        .page_btn{
+            cursor: pointer !important;
+        }
+
     </style>
 </head>
 <body>
@@ -152,16 +156,16 @@
                 </li>
 
                 {for start="$pageStart" end="$pageEnd+1" name="i" }
-                    {if condition="($Think.get.page == $i)")}
-                        <li class="active" onclick="turnPage({$i})">
+                    {if condition="($getPage == $i)")}
+                        <li class="active">
                     {else /}
-                        <li  onclick="turnPage({$i})">
+                        <li>
                     {/if}
-                            <span>{$i}</span>
-                         </li>
+                            <a href="SITE_URL/book/index/lend?page={$i}"><span class="page_btn">{$i}</span></a>
+                        </li>
                 {/for}
 
-                <li class="" >
+                <li class="">
                   <span>
                     <span aria-hidden="true">&raquo;</span>
                   </span>
@@ -186,9 +190,7 @@
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
 <script>
-    function turnPage(num){
 
-    }
 
 </script>
 </body>
