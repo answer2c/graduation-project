@@ -1,4 +1,7 @@
 <?php
+    /**
+     * Author: ybc
+     */
     namespace app\book\controller;
     use \think\Controller;
     use \think\Session;
@@ -6,20 +9,24 @@
     use \think\Request;
     use \think\Db;
     use app\book\model\User;
+    use app\book\model\Book;
+    use app\book\model\Borrow;
+    use app\book\model\Upload;
     use app\common\Page;
+    use app\book\model\Comment;
 
-    class Index extends Controller{
+    class Index extends Controller
+    {
         public static $redirect_uri='http://www.answer2c.cn/book/index/callback';
 
         public function index(){
 
-            $login=$this->checkUser();
+            $login=checkUser();
             $this->assign('username',Session::get('username'));
             $this->assign('loginMess',$login);
             $this->assign('redirect_uri',urlencode(self::$redirect_uri));
             
             $bookset=Db::table('book')->order('borrow_num desc')->limit(5)->select();
-            // dump($bookset);
             for($i=0;$i<count($bookset);$i++){
                 $this->assign('book'.($i+1).'img',$bookset[$i]['img']);
                 $this->assign('book'.($i+1).'name',$bookset[$i]['bookname']);
@@ -34,15 +41,32 @@
             $username=$request->post('username');
             $pwd=md5($request->post('pwd'));
             $result=Db::table('user')->where("username",$username)->where("passwd",$pwd)->select();
-            
             if($result==null){
-                echo '<script>alert("用户名密码不正确");</script>';
-            }else{         
-               $src=$result[0]['img'];
-               Session::set('username',$username);
-               Session::set('ouruser','yes');
-               Session::set('touxiang',$src);
-               $this->redirect('/book');
+                echo '<script>alert("用户名密码不正确");window.history.back();</script>';
+                exit;
+
+            }else{
+                $authority = $result[0]['authority'];
+                $status = $result[0]['status'];
+                if ($status != 1){
+                    echo '<script>alert("账户异常！");window.history.back();</script>';
+                    exit;
+//                    $data = 1;
+//                    $this->redirect('/book/index',$data);
+
+                }else{
+                    $src=$result[0]['img'];
+                    Session::set('username',$username);
+                    Session::set('ouruser','yes');
+                    Session::set('touxiang',$src);
+                    if ($authority == 2){
+                        $this->redirect('/book/manage');
+                    }else{
+                        $this->redirect('/book');
+                    }
+                }
+
+
             }
         }
 
@@ -57,7 +81,7 @@
          */
         public function adduser(Request $request){
            if($request->post('username')){
-                $addUser=new User();
+                $addUser = new User();
                 $addUser->username=$request->post('username');
                 $addUser->passwd=md5($request->post('pwd'));
                 $addUser->sex=$request->post('sex');
@@ -82,76 +106,53 @@
          public function callback(){
 
             if(isset($_GET['code'])){
-                $appid="101458359";
-                $app_secret="3a9ee71ad91cd47e5c7cee6de84f8c19";
-                $url="http://www.answer2c.cn/book/index/callback";
-                $qq=new Qq($appid,$app_secret,$url);
-                $data=$qq->returnData();
+                $appid = "101458359";
+                $app_secret = "3a9ee71ad91cd47e5c7cee6de84f8c19";
+                $url = "http://www.answer2c.cn/book/index/callback";
+                $qq  = new Qq($appid,$app_secret,$url);
+                $data = $qq->returnData();
                
-               
-                Session::set('username',$data['nickname']);
-                Session::set('touxiang',$data['figureurl_qq_1']);
-                $this->redirect('index');
 
+                //$this->addQQ($data['nickname'],$data['figureurl_qq_1']);
+                return $this->fetch('addQQ');
             }else{
                 exit('Request failed');
             }
          }
 
+         public function addQQ($qqname,$qqimg)
+         {
+             return $this->fetch('addQQ');
+         }
 
 
-        //  data-toggle="modal" data-target="#myModal"
 
-        /**
-         * 检查是否登录
-         */
-        protected function checkUser(){
-            if(Session::has('username')){
-                if(Session::has('ouruser')){
-                    $login='
-                    <li><a href="/book/index/userpage" id="touxiang"><img src="http://www.answer2c.cn/'.Session::get("touxiang").'" >'.Session::get("username").'</a></li>
-                    <li><a href="#" onclick="logout()">注销</a></li>';
-                }else{
-                    $login='
-                    <li><a href="/book/index/userpage" id="touxiang"><img src="'.Session::get("touxiang").'" >'.Session::get("username").'</a></li>
-                    <li><a href="#" onclick="logout()">注销</a></li>';
-                  
-                }
-             
-            }else{
-                $login='<li><a href="#" data-toggle="modal" data-target="#myModal" >登录</a></li>
-                <li><a href="/book/index/regi">注册</a></li>';
-                
-            }
 
-            return $login;
-        }
 
 
         /**
          * 注销
          */
         public function logout(){
-            Session::clear();
+            _cs();
             $this->redirect('index');
-
         }
 
 
         public function ajaxcheck(Request $request){
   
                 
-            // if($request->post('username')){
-            //     $name=$request->post('username');
-            //     $result=Db::table('user')->where('username',$name)->select();
-            //          if($result!=null){
-            //              echo '用户名已存在';
-            //          }else{
-            //                  echo "";
-            //             }
-            //  }else{
-            //     echo 'no data';
-            // }
+             if($request->post('username')){
+                 $name=$request->post('username');
+                 $result=Db::table('user')->where('username',$name)->select();
+                      if($result!=null){
+                          echo '用户名已存在';
+                      }else{
+                              echo "";
+                         }
+              }else{
+                 echo 'no data';
+             }
             dump($_POST);
         }
 
@@ -164,7 +165,7 @@
                 echo "<script>alert('请先登录');window.location='/book/index';</script>";
             
             }else{
-                 $login=$this->checkUser();
+                 $login = checkUser();
                  $this->assign('username',Session::get('username'));
                  $this->assign('loginMess',$login);
 
@@ -198,7 +199,9 @@
                  $total = Db::query($totalSql);
                  $pages = ceil($total[0]['total'] / $limit);
 
-
+                $tpage = new Page($pages);
+                $pagelist = $tpage->pagelist();
+                $this->assign("pagelist",$pagelist);
                  //确定分页信息
                 $pageStart = 0;
                 $pageEnd = 0;
@@ -207,34 +210,12 @@
                 }
 
 
-                    if ($_GET['page'] > $pages){
-                        $pageStart = 0;
-                        $pageEnd = 0;
-                    }else{
-                        $j = $_GET['page'];
-                        while($j > 1 && $j > $_GET['page'] - 3){
-                            $j--;
-                        }
-                        $pageStart = $j;
-
-                        $i = $_GET['page'];
-                        while($i < $pages && $i < $_GET['page'] + 4){
-                            $i++;
-                        }
-                        $pageEnd = $i;
-                    }
-
                      $offset = $limit * ($_GET['page'] - 1);
 
-
-                $this->assign('pageStart',$pageStart);
-                $this->assign('pageEnd',$pageEnd);
 
                 //搜索所有符合条件的书籍
                 $sql = "select * from book where 1=1 ".$where." limit {$offset},{$limit}";
                 $bookList = Db::query($sql);
-
-                $this->assign('getPage',$_GET['page']);
                 $this->assign('total',$total[0]);
                 $this->assign('pages',$pages);
                 $this->assign('bookList',$bookList);
@@ -251,7 +232,7 @@
                 echo "<script>alert('请先登录');window.location='/book/index';</script>";
             
             }else{
-                $login=$this->checkUser();
+                $login=checkUser();
                 $this->assign('username',Session::get('username'));
                 $this->assign('loginMess',$login);
                 return $this->fetch();
@@ -274,6 +255,7 @@
             $booktag = explode(' ', $request->post('booktag'));
             $price = substr($request->post('price'), 0, -3);
             $bookimg = $request->post('bookimg');
+            $book_intro = $request->post('intro');
 
 //           //查看当前书籍信息是否存在
             $ifbook = Db::table('book')->where('isbn', $isbn)->select();
@@ -294,7 +276,7 @@
 
             }else {
                 //添加新的图书信息
-                $bookdata = ['isbn' => $isbn, 'author' => $author, 'publisher' => $publisher, 'pubdate' => $pubdate, 'price' => $price, 'bookname' => $bookname, 'img' => $bookimg];
+                $bookdata = ['isbn' => $isbn, 'author' => $author, 'publisher' => $publisher, 'pubdate' => $pubdate, 'price' => $price, 'bookname' => $bookname, 'img' => $bookimg ];
                 $insertBook=Db::table('book')->insert($bookdata);
                 if($insertBook != 1){
                     die(json_encode(array('status' => 0, 'data' => '上传失败')));
@@ -351,7 +333,7 @@
 
 
         public function userpage(){
-            $login=$this->checkUser();
+            $login=checkUser();
             $this->assign('username',Session::get('username'));
             $this->assign('loginMess',$login);
             $result=Db::table('user')->where('username',Session::get('username'))->select();
@@ -362,11 +344,183 @@
         }
 
 
+      /**
+       * 书籍归还部分
+       */
 
-        public function testPage(){
-            $page =new Page();
-            var_dump($page);
+      public function returnbook()
+      {
+          if(!Session::has('username')){
+              echo "<script>alert('请先登录');window.history.back();</script>";
+          }else{
+              $login = checkUser();
+              $username = Session::get('username');
+              $borrow = new Borrow;
+              $upload = new Upload;
+              $borrow_info = $borrow->where('borrow_user', $username)->find();
+
+              $this->assign("loginMess",$login);
+              $this->assign("borrow_info",$borrow_info);
+              return $this->fetch();
+          }
+
+
+
+      }
+
+        /**
+         * 图书借阅
+         */
+        public function lendbook()
+        {
+            if(!Session::has('username')){
+                echo "<script>alert('请先登录');window.history.back();</script>";
+            }else{
+                $login = checkUser();
+                $isbn = $_GET['isbn'];
+                $username = Session::get('username');
+                $book = new Book;
+                $borrow = new Borrow;
+                $upload = new Upload;
+                $user   = new User;
+                $bookname = $book->where('isbn',$isbn)->find()['bookname'];
+
+                $upload_infos = $upload->where('isbn',$isbn)->where('rent',0)->order('upload_time','desc')->select();
+                foreach ($upload_infos as &$upload_info){
+                    $upload_user = $upload_info['username'];
+                    $upload_user_info = $user->where('username',$upload_user)->find();
+                    $upload_info['user_info'] =$upload_user_info;
+                }
+
+                $this->assign("bookname",$bookname);
+                $this->assign("loginMess",$login);
+                $this->assign("upload_infos",$upload_infos);
+                return $this->fetch();
+            }
         }
+
+        public function lendconfirm()
+        {
+            $login = checkUser();
+            $share_id = $_GET['share_id'];
+            $tel = $_GET['tel'];
+            $borrow_user = Session::get('username');
+
+            $upload = new Upload;
+            $borrow = new Borrow;
+            //借书表新增数据
+            $borrow->borrow_user=$borrow_user;
+            $borrow->share_id = $share_id;
+            $ifborrow = $borrow->save();
+
+            //upload更新rent字段的值
+            $iflend = $upload->where('share_id',$share_id)->update(["rent" => 1]);
+
+            if($iflend <= 0 || $ifborrow <= 0 ){
+                echo "<script>alert('借阅失败');window.history.back();</script>";
+                return;
+            }
+
+            $this->assign('tel',$tel);
+            $this->assign("loginMess",$login);
+            return $this->fetch();
+        }
+
+
+      /**
+       * 图书详情
+       */
+      public function bookdetail()
+      {
+          $login = checkUser();
+          $isbn = $_GET['isbn'];
+          $url = "https://api.douban.com/v2/book/isbn/".$isbn;
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_HEADER, 0);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
+          $tmpInfo = curl_exec($curl);     //返回api的json对象
+          curl_close($curl);
+
+          $book_info = json_decode($tmpInfo,true);
+          $booktag = "";
+          foreach ($book_info['tags'] as $tag){
+              $booktag .= $tag['title'].' &nbsp;';
+          }
+          $data = ['bookname' => $book_info['title'],'subtitle' => $book_info['subtitle'],'author' => $book_info['author'],'publisher' => $book_info['publisher'] ,'pubdate' => $book_info['pubdate'] ,
+              'book_intro' => $book_info['summary'] , 'author_intro' => $book_info['author_intro'] ,'booktag' => $booktag ,'pages' => $book_info['pages'] ,
+              'img_src' => $book_info['images']['small'],'binding' => $book_info['binding'],'rating' => $book_info['rating']['average'],'price' => $book_info['price'],
+              'isbn' => $isbn,'loginMess' => $login ];
+
+          $comment = new Comment;
+          $commentList = $comment->where('isbn',$isbn)->select();
+
+          $this->assign("commentList",$commentList);
+          $this->assign($data);
+          return $this->fetch();
+
+      }
+
+        /**
+         * 我的图书管理
+         */
+
+        public function mybook()
+        {
+            if(!Session::has('username')){
+            echo "<script>alert('请先登录');window.history.back();</script>";
+            return;
+            }else{
+                $login = checkUser();
+                $username = Session::get('username');
+
+                $upload = new Upload;
+                $borrow = new Borrow;
+                $book = new Book;
+
+                $islends = $upload->where('username',$username)->where("rent",1)->select();
+                $nolends =  $upload->where('username',$username)->where("rent",0)->select();
+
+                foreach ($nolends as &$value){
+                    $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                }
+                foreach ($islends as &$value){
+                    $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                }
+
+                $data=["islends" => $islends , "nolends" => $nolends];
+                $this->assign($data);
+                $this->assign("loginMess",$login);
+
+                return $this->fetch();
+            }
+
+        }
+      /**
+       * 评论书籍
+       */
+      public function comment()
+      {
+          $username = Session::get('username');
+          $content = $_POST['content'];
+          $isbn = $_POST['isbn'];
+
+          if (empty($username)){
+              die(json_encode(array("status" => 'ERR' , 'msg' => '请先登录')));
+          }
+
+          $comment = new Comment;
+          $comment->cname = $username;
+          $comment->isbn = $isbn;
+          $comment->content = $content;
+          $if = $comment->save();
+          if ($if > 0){
+              die(json_encode(array("status" => 'OK' , 'msg' => "评论成功")));
+          }else{
+              die(json_encode(array("status" => 'ERR' , 'msg' => "评论失败")));
+          }
+      }
+
 
     }
 

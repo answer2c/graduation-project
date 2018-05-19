@@ -6,8 +6,9 @@
         public $pagenum;
 
 
-        function __construct(){
+        function __construct($pagenum){
             $this->page=!empty($_GET['page'])?$_GET['page']:1;
+            $this->pagenum = $pagenum;
             $this->uri=$this->geturi();
         }
         
@@ -82,13 +83,14 @@
          public function pagelist(){
               $listnum = 4;
               $list = "";
+              $list .="<li><a href='".$this->uri.$this->pre()."'><<</a></li>";
               for($i = $listnum;$i > 0;$i--){
                   $page = $this->page - $i;
                   if($page <= 0)continue;
                  $list .= "<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
                  
               }
-              $list .= '<li><a href="#" class="disabled">'.$this->page.'</a></li>';
+              $list .= '<li><a href="#" class="disabled" readonly>'.$this->page.'</a></li>';
 
               for($i=1;$i<$listnum;$i++){
                   $page=$this->page+$i;
@@ -97,6 +99,8 @@
                   $list.="<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
 
               }
+
+              $list .="<li><a href='".$this->uri.$this->next()."'>>></a></li>";
               return $list;
               
           }

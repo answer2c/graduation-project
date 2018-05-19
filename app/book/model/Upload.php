@@ -2,7 +2,7 @@
    namespace app\book\model;
    use think\Model;
 
-   class Book extends Model{
+   class Upload extends Model{
        
    }
 

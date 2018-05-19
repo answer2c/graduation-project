@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>欢迎注册</title>
-
+    <link rel="stylesheet" type="text/css" href="SITE_URL/static/css/verify.css">
     <link rel="stylesheet" href="SITE_URL/static/css/book.css">
     <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css"> 
     <link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
+    <script src="../../../../../../../../../../../../../Desktop/jq22verify-master9860201711051127/verify-master/js/verify.js"></script>
 </head>
 <body>
 
@@ -32,8 +33,9 @@
                         <ul class="nav navbar-nav navbar-left">
                             <li><a href="{:url('/book')}">首页</a></li>
                             <li><a href="{:url('/book/index/lend')}">借书</a></li>
-                            <li><a href="#">还书</a></li>
-                            <li><a href="#">上传书籍</a></li>
+                            <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
+                            <li><a href="{:url('/book/index/mybook')}">我的书籍</a></li>
+                            <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
                             <li class="dropdown" >
                                 <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                                     <span class="caret"></span>
@@ -141,7 +143,15 @@
             <span class="tip"></span>
             </div>                 
         </div>
+        <div class="form-group">
 
+            <label for="idnum" class="col-xs-5 col-sm-3 control-label">验证码：</label>
+            <div class="col-xs-8 col-sm-5">
+                <div id="mpanel3" style="margin-top: 20px">
+                </div>
+                <span class="tip"></span>
+            </div>
+        </div>
         <div class="form-group">
             <div class="col-md-offset-4 col-sm-2 col-xs-3">
             <input type="button" name="sub" value="确认" id="sub" class="btn btn-success" >
@@ -171,6 +181,7 @@
     <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
     <script src="SITE_URL/static/js/bootstrap.min.js"></script>
     <script src="SITE_URL/static/js/myjs1.js"></script>
+        <script type="text/javascript" src="SITE_URL/static/js/verify.js" ></script>
     <script>
             
        $("#username").blur(function(){
@@ -183,9 +194,26 @@
                     alert('s');
                 },
                 cache:false
-            });  alert('sa');
+            });
        });
-           
+       $('#mpanel3').codeVerify({
+           type : 2,
+           figure : 100,	//位数，仅在type=2时生效
+           arith : 0,	//算法，支持加减乘，不填为随机，仅在type=2时生效
+           width : '200px',
+           height : '50px',
+           fontSize : '30px',
+           btnId : 'check-btn2',
+           ready : function() {
+           },
+           success : function() {
+               alert('验证匹配！');
+           },
+           error : function() {
+               alert('验证码不匹配！');
+           }
+       });
+
     </script>
 </body>
 </html>
