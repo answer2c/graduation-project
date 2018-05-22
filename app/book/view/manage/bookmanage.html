@@ -47,8 +47,8 @@
 
         <div class="collapse navbar-collapse hidemenu">
             <ul class="nav navbar-nav navbar-left">
-                <li class="active"><a href="#">首页</a></li>
-                <li><a href="{:url('/book/manage/bookmanage')}">书籍管理</a></li>
+                <li><a href="{:url('/book/manage/index')}">首页</a></li>
+                <li  class="active"><a href="{:url('/book/manage/bookmanage')}">书籍管理</a></li>
                 <li><a href="{:url('/book/manage/usermanage')}">用户管理</a></li>
                 <li><a href="{:url('/book/manage/commentmanage')}">评论管理</a></li>
             </ul>
@@ -64,25 +64,36 @@
 <br><br><br><br><br>
 <!-- 导航栏结束 -->
 <div class="container">
-    <span>当前用户数量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:{$usernum}%">
-            <span >{$usernum}</span>
-        </div>
-    </div>
-    <span>当前图书量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: {$booknum}%">
-            <span >{$booknum}</span>
-        </div>
-    </div>
 
-    <span>当前借阅量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: {$borrownum}%">
-            <span>{$borrownum}</span>
-        </div>
-    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>书名</th>
+            <th>作者</th>
+            <th>ISBN</th>
+            <th>出版社</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $book_infos as $book_info}
+        <tr>
+            <th>{$book_info['bookname']}</th>
+            <th>{$book_info['author']}</th>
+            <th>{$book_info['isbn']}</th>
+            <th>{$book_info['publisher']}</th>
+            <th>
+                {if condition="($book_info['status'] == 1)"}
+                <button class="btn btn-default btn-warning" onclick="block({$book_info['isbn']})">下架</button>
+                {else /}
+                <button class="btn btn-default btn-success" onclick="block({$book_info['isbn']})">恢复</button>
+                {/if}
+            </th>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+
 </div>
 
 
@@ -126,16 +137,7 @@
 
                 </div>
 
-                <div class="modal-footer">
-                    <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101458359&redirect_uri={$redirect_uri}&scope=get_user_info&state=12" >
-                        <img src="SITE_URL/static/image/qqs_login.png">
-                    </a>
 
-
-                    <input type="submit" class="btn btn-primary" value="登录">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-
-                </div>
 
             </form>
         </div>

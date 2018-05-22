@@ -57,8 +57,10 @@
                 }else{
                     $src=$result[0]['img'];
                     Session::set('username',$username);
+                    Session::set('authority',$authority);
                     Session::set('ouruser','yes');
                     Session::set('touxiang',$src);
+
                     if ($authority == 2){
                         $this->redirect('/book/manage');
                     }else{
@@ -126,10 +128,6 @@
          }
 
 
-
-
-
-
         /**
          * 注销
          */
@@ -140,20 +138,20 @@
 
 
         public function ajaxcheck(Request $request){
-  
-                
+            $user = new User;
              if($request->post('username')){
                  $name=$request->post('username');
-                 $result=Db::table('user')->where('username',$name)->select();
-                      if($result!=null){
-                          echo '用户名已存在';
-                      }else{
-                              echo "";
-                         }
+                 $result = $user->where("username",$name)->count();
+                 if ($result > 0){
+                     $data = array("status" => "ERR" , "msg" => "用户名已存在");
+                 }else {
+                     $data = array("status" => "OK", "msg" => "可以使用");
+                 }
               }else{
-                 echo 'no data';
+                 $data = array("status" => "ERR", "msg" => "数据不存在");
              }
-            dump($_POST);
+
+             die(json_encode($data));
         }
 
 
@@ -165,8 +163,7 @@
                 echo "<script>alert('请先登录');window.location='/book/index';</script>";
             
             }else{
-                 $login = checkUser();
-                 $this->assign('username',Session::get('username'));
+                $login = checkUser();
                  $this->assign('loginMess',$login);
 
                  $tags=Db::table('tags')->field('number,tagname')->select();
@@ -357,7 +354,14 @@
               $username = Session::get('username');
               $borrow = new Borrow;
               $upload = new Upload;
-              $borrow_info = $borrow->where('borrow_user', $username)->find();
+              $book = new Book;
+
+              $borrow_info = $borrow->where('borrow_user', $username)->where('is_return',0)->select();
+              foreach ($borrow_info as &$item) {
+                  $upload_info = $upload->where("share_id",$item->share_id)->find();
+                  $item['upload_user'] = $upload_info->username;
+                  $item['bookname'] = $book->where('isbn',$upload_info->isbn)->find()->bookname;
+              }
 
               $this->assign("loginMess",$login);
               $this->assign("borrow_info",$borrow_info);
@@ -379,6 +383,7 @@
                 $login = checkUser();
                 $isbn = $_GET['isbn'];
                 $username = Session::get('username');
+
                 $book = new Book;
                 $borrow = new Borrow;
                 $upload = new Upload;

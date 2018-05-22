@@ -47,9 +47,9 @@
 
         <div class="collapse navbar-collapse hidemenu">
             <ul class="nav navbar-nav navbar-left">
-                <li class="active"><a href="#">首页</a></li>
+                <li><a href="{:url('/book/manage/index')}">首页</a></li>
                 <li><a href="{:url('/book/manage/bookmanage')}">书籍管理</a></li>
-                <li><a href="{:url('/book/manage/usermanage')}">用户管理</a></li>
+                <li  class="active"><a href="{:url('/book/manage/usermanage')}">用户管理</a></li>
                 <li><a href="{:url('/book/manage/commentmanage')}">评论管理</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -64,25 +64,36 @@
 <br><br><br><br><br>
 <!-- 导航栏结束 -->
 <div class="container">
-    <span>当前用户数量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:{$usernum}%">
-            <span >{$usernum}</span>
-        </div>
-    </div>
-    <span>当前图书量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: {$booknum}%">
-            <span >{$booknum}</span>
-        </div>
-    </div>
 
-    <span>当前借阅量：</span>
-    <div class="progress" style="height: 40px">
-        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: {$borrownum}%">
-            <span>{$borrownum}</span>
-        </div>
-    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>用户名</th>
+            <th>注册时间</th>
+            <th>证件号码</th>
+            <th>地址</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $user_infos as $user_info}
+        <tr>
+            <th>{$user_info['username']}</th>
+            <th>{$user_info['regitime']}</th>
+            <th>{$user_info['idnum']}</th>
+            <th>{$user_info['address']}</th>
+            <th>
+                {if condition="($user_info['status'] == 1)"}
+                <button class="btn btn-default btn-warning" onclick="block({$user_info['username']})">拉黑</button>
+                {else /}
+                <button class="btn btn-default btn-success" onclick="block({$user_info['username']})">恢复</button>
+                {/if}
+            </th>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+
 </div>
 
 

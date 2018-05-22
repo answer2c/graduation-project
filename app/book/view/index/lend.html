@@ -65,7 +65,7 @@
         <div class="collapse navbar-collapse hidemenu">
             <ul class="nav navbar-nav navbar-left">
                 <li><a href="{:url('/book')}">首页</a></li>
-                <li><a href="{:url('/book/index/lend')}">借书</a></li>
+                <li class="active"><a href="{:url('/book/index/lend')}">借书</a></li>
                 <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
                 <li><a href="{:url('/book/index/mybook')}">我的书籍</a></li>
                 <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
@@ -134,7 +134,7 @@
                             <div class="caption" >
                                 <h3>{$book['bookname']}</h3>
                                 <p>作者：{$book['author']}</p>
-                                <p class="book_btn"><a href="SITE_URL/book/index/lendbook?isbn={$book['isbn']}" class="btn btn-primary" role="button">借这本书</a> <a href="SITE_URL/book/index/bookdetail?isbn={$book['isbn']}" class="btn btn-default" role="button">查看详情</a></p>
+                                <p class="book_btn"><a href="/book/index/lendbook?isbn={$book['isbn']}" class="btn btn-primary" role="button">借这本书</a> <a href="/book/index/bookdetail?isbn={$book['isbn']}" class="btn btn-default" role="button">查看详情</a></p>
                             </div>
                         </div>
                     </div>
