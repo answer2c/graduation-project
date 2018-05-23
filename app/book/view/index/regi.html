@@ -133,18 +133,25 @@
 
             </div>                 
         </div>
+        <div class="form-group">
 
+            <label for="address" class="col-xs-5 col-sm-3 control-label">地址：</label>
+            <div class="col-xs-8 col-sm-5">
+                <input type="text" id="address" class="form-control" name="address" placeholder='address'>
+                <span class="tip"></span>
+            </div>
+        </div>
         <div class="form-group">
             
             <label for="idnum" class="col-xs-5 col-sm-3 control-label">证件号码：</label>
             <div class="col-xs-8 col-sm-5">
             <input type="text" id="idnum" class="form-control" name="idnum" placeholder='ID NUMBER'>
-            <span class="tip"></span>
+            <span class="tip" id="idtip"></span>
             </div>                 
         </div>
         <div class="form-group">
 
-            <label for="idnum" class="col-xs-5 col-sm-3 control-label">验证码：</label>
+            <label for="" class="col-xs-5 col-sm-3 control-label">验证码：</label>
             <div class="col-xs-8 col-sm-5">
                 <div id="mpanel3" style="margin-top: 20px">
                 </div>
@@ -179,7 +186,6 @@
     
     <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
     <script src="SITE_URL/static/js/bootstrap.min.js"></script>
-    <script src="SITE_URL/static/js/myjs1.js"></script>
         <script type="text/javascript" src="SITE_URL/static/js/verify.js" ></script>
     <script>
             
@@ -217,14 +223,119 @@
            ready : function() {
            },
            success : function() {
+               var tag=1;
 
-               alert('验证匹配！');
+               $(".tip").each(function(){
+                   if($(this).val()!=""){
+                       tag=0;
+                   }
+               });
+               $("input").each(function(){
+                   if($(this).val() == ""){
+                       tag = 0;
+                       alert("请将信息填写完整！");
+                       return false;
+                   }
+
+
+               })
+               if(tag==1){
+
+                   $("#myform").submit();
+               }else{
+                   return false;
+               }
            },
            error : function() {
-               alert('验证码不匹配！');
+               alert('验证码不正确！');
            }
        });
 
     </script>
+
+
+        <script>
+
+            function  logout(){
+
+                var r=confirm("确定退出吗？");
+                if(r==true){
+                    window.location="http://www.answer2c.cn/book/index/logout";
+                }else{
+                    return false;
+                }
+
+            }
+
+
+
+            $("input").blur(function(){
+                if($(this).val()==""){
+                    $(this).next().html("不能为空");
+                }else{
+                    $(this).next().html("");
+                }
+            })
+
+            $("#tel").blur(function(){
+                        //验证手机号
+                        var pat1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+                        if (!pat1.test($("#tel").val())){
+                            $("#tel").next().html("请输入正确的格式的电话号码");
+                        }else{
+                            $("#tel").next().html("");
+                        }
+            })
+
+            $("#email").blur(function(){
+                        //验证邮箱
+                        var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+                        if(!myreg.test($("#email").val())){
+                            $("#email").next().html("请输入正确格式的电子邮箱");
+                        }else{
+                            $("#email").next().html("");
+                        }
+            })
+
+            //检查密码
+            $("#pwd").blur(function(){
+                if($(this).val().length < 6){
+                    $("#pwd").parent().addClass("has-error");
+                    $(this).next().html("密码长度不能低于6");
+                }else{
+                    $("#pwd").parent().removeClass("has-error");
+                    $(this).next().html('');
+                }
+            })
+
+            $("#pwd-c").blur(function(){
+                if($(this).val() != $("#pwd").val()){
+                    $("#pwd-c").parent().addClass("has-error");
+                    $(this).next().html("两次输入的密码不一致");
+                }else{
+                    $("#pwd-c").parent().removeClass("has-error");
+                    $(this).next().html('');
+                }
+            })
+
+            //身份证号
+            $("#idnum").blur(function(){
+                var pat2 = /^[1-9]\d{16}(\d|x)$/i;
+                if(!pat2.test($("#idnum").val())){
+                    $("#idtip").html("请输入正确格式的证件号码");
+
+                }else{
+                    $("#idtip").html("");
+                }
+            })
+
+            $(function(){
+                $(".detail").hide();
+            })
+
+
+        </script>
+
+
 </body>
 </html>

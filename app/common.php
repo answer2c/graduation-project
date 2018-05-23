@@ -34,3 +34,12 @@ use \think\Session;
 function _cs(){
     Session::clear();
 }
+
+/**
+ * 格式化ajax返回的数据
+ */
+function _ard($msg,$status = false)
+{
+    $data = array("status" => $status, "msg" => $msg);
+    die(json_encode($data));
+}

@@ -35,8 +35,6 @@
             return $this->fetch();
         }
 
-
-
         public function login(Request $request){
             $username=$request->post('username');
             $pwd=md5($request->post('pwd'));
