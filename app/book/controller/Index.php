@@ -88,12 +88,12 @@
                 $addUser->tel=$request->post('tel');
                 $addUser->email=$request->post('email');
                 $addUser->idnum=$request->post('idnum');
+                $addUser->address = $request->post('address');
                 $addUser->regitime=time();
                 $addUser->authority=1;
                 $addUser->save();
-                Session::set('username',$request->post('username'));
                 echo "<script>alert('注册成功');</script>";
-                $this->redirect('/book/index/index');
+                $this->redirect('/book/index/');
            }
         }
 
