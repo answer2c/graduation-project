@@ -77,6 +77,37 @@
 
 
         /**
+         * 添加QQ用户账号
+         */
+        public function addQQuser(Request $request)
+        {
+
+            $user = new User;
+            $touxiang = $request->post("touxiang");
+            $nickname = $request->post("nickname");
+            $user->username = $request->post("username");
+            $user->idnum=$request->post('idnum');
+            $user->address = $request->post('address');
+            $user->tel=$request->post('tel');
+
+
+            $user->regitime=time();
+            $user->authority = 1;
+
+
+            $add = $user->save();
+            if ($add > 0){
+                Session::set("username",$nickname);
+                Session::set("touxiang",$touxiang);
+                Session::set("authority",1);
+                _ard("注册成功" , "OK");
+            }else{
+                _ard("注册失败" , "ERR");
+            }
+        }
+
+
+        /**
          * 注册添加用户
          */
         public function adduser(Request $request){
@@ -97,6 +128,16 @@
            }
         }
 
+        public function testu(){
+            $user = new User;
+            $if_exists = $user->where("username","adminaaa")->select();
+            if(!empty($if_exists)){
+                echo 1;
+            }else{
+                echo 2;
+            }
+            var_dump($if_exists);exit;
+        }
 
 
         /**
@@ -104,21 +145,37 @@
          */
 
          public function callback(){
-
+             _cs();
             if(isset($_GET['code'])){
+                $user = new User;
                 $appid = "101458359";
                 $app_secret = "3a9ee71ad91cd47e5c7cee6de84f8c19";
                 $url = "http://www.answer2c.cn/book/index/callback";
                 $qq  = new Qq($appid,$app_secret,$url);
                 $data = $qq->returnData();
-               
 
-                //$this->addQQ($data['nickname'],$data['figureurl_qq_1']);
-                return $this->fetch('addQQ');
+                $if_exists = $user->where("username",$data['openid'])->select();
+
+                $this->assign("openid",$data['openid']);
+                $this->assign("touxiang",$data['figureurl_qq_1']);
+                $this->assign("nickname",$data['nickname']);
+
+
+
+                //判断该QQ用户是否已有用户信息
+                if (!empty($if_exists)){
+                    Session::set("username",$data['nickname']);
+                    Session::set('authority',"1");
+                    Session::set('touxiang',$data['figureurl_qq_1']);
+                    return $this->fetch('index');
+                }else{
+                    return $this->fetch('addQQ');
+                }
             }else{
                 exit('Request failed');
             }
          }
+
 
          public function addQQ($qqname,$qqimg)
          {

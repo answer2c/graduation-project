@@ -38,7 +38,7 @@ function _cs(){
 /**
  * 格式化ajax返回的数据
  */
-function _ard($msg,$status = false)
+function _ard($msg,$status = "ERR")
 {
     $data = array("status" => $status, "msg" => $msg);
     die(json_encode($data));
