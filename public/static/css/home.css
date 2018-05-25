@@ -1,0 +1,251 @@
+*{
+    margin:0px;
+    padding:0px;
+}
+
+body{
+    background-color:rgb(207, 207, 207);
+}
+nav{
+    background-color:rgb(82, 82, 235);
+    margin-bottom:0px !important;
+        }
+
+    #mytitle{
+        padding:15px;
+        margin:20px;
+        font-size:22px;
+        color:rgb(205, 205, 207);
+
+    }
+    .navbar-header{
+        padding-top:10px;
+    }
+
+    #ulnav>li>a{
+      font-size: 16px;
+      color:rgb(209, 209, 209);
+    }
+    #ulnav>li>a:hover{
+      color:rgb(71, 71, 226);
+    }
+    .navbar-brand{
+      font-size:20px;
+      color:rgb(207, 204, 204);
+    }
+    
+
+    
+    .banner-img{
+        padding:0px;
+        margin:0px;
+    }
+    
+
+    .myphoto{
+        display: inline-block;
+        width:85px;
+        height:85px;
+        border-radius:50px;
+        position:absolute;
+        left:50%;
+        top:20px;
+        margin-left:-40px;
+      }
+  
+
+
+ 
+
+
+/* 低于400像素时 */
+    @media screen and (max-width:400px){
+  
+      .banner-img>img{
+          width:500px;
+          height:300px;
+      }
+
+      .AboutMe{
+        width:300px;
+        height:300px;
+        background-color:rgba(255,255,255,0.5);
+        margin:0 auto;
+        position:absolute;
+        left:50%;
+        margin-left:-150px;
+        top:50%;
+        margin-top: -20px;
+        
+      }
+
+    }
+
+
+
+
+
+    /*400到550像素*/
+    @media screen and (min-width:400px) 
+    and (max-width:550px){
+        .AboutMe{
+        width:300px;
+        height:300px;
+        background-color:rgba(255,255,255,0.5);
+        position:absolute;
+        left:50%;
+        margin-left:-150px;
+        top:50%;
+        margin-top:-100px;
+
+
+      }
+ 
+    }
+
+
+    @media screen and (width:414px)
+   {
+.AboutMe{
+  width:300px;
+  height:300px;
+  background-color:rgba(255,255,255,0.5);
+  margin:0 auto;
+  position:absolute;
+  left:50%;
+  margin-left:-150px;
+  top:50%;
+  margin-top: -200px;
+  
+}
+
+}
+
+    @media screen and (min-width:550px) 
+    and (max-width:700px){
+        .AboutMe{
+        width:400px;
+        height:300px;
+        background-color:rgba(255,255,255,0.5);
+        position:absolute;
+        top:200px;
+        left:50%;
+        margin-left:-200px;
+
+
+      }
+ 
+    }
+
+    /*700-900像素*/
+    @media screen and (min-width:700px)
+    and (max-width:900px){
+        .AboutMe{
+        width:450px;
+        height:300px;
+        background-color:rgba(255,255,255,0.5);
+        position:absolute;
+        left:50%;
+        margin-left:-200px;
+        top:50%;
+        margin-top:0px;
+        border-radius:10px;
+
+
+      }
+  
+    }
+
+    @media screen and (width:768px){
+        .AboutMe{
+        width:450px;
+        height:300px;
+        background-color:rgba(255,255,255,0.5);
+        position:absolute;
+        left:50%;
+        margin-left:-200px;
+        top:50%;
+
+        margin-top:-240px;
+        border-radius:10px;
+
+
+      }
+  
+    }
+
+    
+    @media screen and (width:1024px){
+        .AboutMe{
+        width:450px;
+        height:300px;
+        position:absolute;
+        left:50%;
+        margin-left:-200px;
+        top:50%;
+        margin-top:-350px;
+      }
+  
+    }
+
+
+
+
+
+    /* 大于900像素 */
+    @media screen and (min-width:900px){
+      .AboutMe{
+        width:800px;
+        height:400px;
+        background-color:rgba(255,255,255,0.5);
+        position:absolute;
+        left:50%;
+        margin-left:-400px;
+        top:56%;
+        border-radius:10px;
+
+
+      }
+  }
+
+
+  footer{
+      position:relative;
+      top:300px;
+      background-color:rgba(189, 184, 184, 0.8);
+      width:100%;
+      height:80px;
+  }
+  footer>div:nth-child(1){
+      margin-top:5px;
+  }
+ #ba{
+      text-decoration:none !important;
+      color:rgb(58, 57, 57);
+  }
+
+  #introduce{
+      width:80%;
+     
+      margin:0 auto;
+      position:relative;
+      top:120px;
+
+  }
+
+  #introduce p{
+    font-size:25px;
+    color:rgb(77, 76, 76);
+  }
+
+#touxiang{
+    display: inline-block;
+    width:30px;
+    height:30px;
+}
+
+#userphoto{
+    display: inline-block;
+    width:30px;
+    height:30px;
+}
