@@ -112,6 +112,7 @@
         <h4><span style="color:darkgray">已上传的书</span>/<a href="/book/index/mybook/view/islended">已借出的书</a></h4>
         {/if}
     </div>
+    <h4>共{$total}本</h4>
 
 
 
@@ -121,12 +122,12 @@
     <div class="col-sm-4 col-md-3">
         <div class="thumbnail b1 book_module">
             <div class="caption" >
-            <h3>{value->bookinfo['bookname']}</h3>
+            <h3>{$value->bookinfo['bookname']}</h3>
             <p>作者：{$value->bookinfo['author']}</p>
                 {if ($view == "islended")}
                 <p class="book_btn"><a href="/book/index/" class="btn btn-primary" role="button">确认已归还</a> </p>
                 {else /}
-                    <p class="book_btn"><a href="/book/index/" class="btn btn-primary" role="button">下架</a> </p>
+                    <p class="book_btn"><a href="#" class="btn btn-primary" role="button" onclick="xiajia('{$username}',{$value->bookinfo['isbn']})">下架</a> </p>
                 {/if}
 
             </div>
@@ -134,17 +135,17 @@
     </div>
     {/foreach}
     </div>
-
+    {if ($total > 0)}
+    <nav aria-label="..." class="test">
+        <ul class="pagination">
+            {$pagelist}
+        </ul>
+    </nav>
+    {/if}
 </div>
 
 
-    {if ($total > 0)}
-    <nav aria-label="..." class="test">
-    <ul class="pagination">
-    {$pagelist}
-    </ul>
-    </nav>
-    {/if}
+
 
 
 
@@ -152,7 +153,29 @@
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
 <script>
+    function xiajia(username,isbn){
+        var ans = window.confirm("您确定不再分享这本书吗？");
+        if(ans == true){
+            $.ajax({
+                url:"/book/index/xiajia",
+                type:"post",
+                dataType:"json",
+                data:{"username" : username,
+                    "isbn"     : isbn
+                },
+                success:function(data){
+                    alert(data.msg);
+                    if(data.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert('操作失败');
+                }
+            })
 
+        }
+    }
 
 
 

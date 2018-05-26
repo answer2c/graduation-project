@@ -14,6 +14,7 @@
     use app\book\model\Upload;
     use app\book\model\Comment;
     use app\book\model\Tags;
+    use app\book\model\Booktag;
     use app\common\Page;
 
 
@@ -30,7 +31,7 @@
             $this->assign('loginMess',$login);
             $this->assign('redirect_uri',urlencode(self::$redirect_uri));
 
-            $bookset = $book->order('borrow_num','desc')->limit(5)->select();
+            $bookset = $book->order('borrow_num','desc')->where("status",1)->limit(5)->select();
             $this->assign('bookset',$bookset);
             return $this->fetch('index');
         }
@@ -116,9 +117,19 @@
                 $addUser->address = $request->post('address');
                 $addUser->regitime=time();
                 $addUser->authority=1;
-                $addUser->save();
-                echo "<script>alert('注册成功');</script>";
-                $this->redirect('/book/index/');
+                $save = $addUser->save();
+                if($save > 0){
+                    Session::set("username",$request->post('username'));
+                    Session::set("authority",1);
+                    Session::set("ouruser","yes");
+                    Session::set("touxiang","static/image/index.png");
+
+                    echo "<script>alert('注册成功');</script>";
+                    return $this->index();
+                }
+
+
+//                $this->redirect('/book/index/');
            }
         }
 
@@ -252,7 +263,7 @@
 
 
                 //搜索所有符合条件的书籍
-                $sql = "select * from book where 1=1 ".$where." limit {$offset},{$limit}";
+                $sql = "select * from book where status=1 ".$where." limit {$offset},{$limit}";
                 $bookList = Db::query($sql);
                 $this->assign('total',$total[0]);
                 $this->assign('pages',$pages);
@@ -304,12 +315,12 @@
                     $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
                     $ifsuccess = Db::table('upload')->insert($uploaddata);
                     if ($ifsuccess == 1) {
-                        die(json_encode(array('status' => 1, 'data' => '上传成功')));
+                        _ard("上传成功",1);
                     } else {
-                        die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                        _ard("上传失败",0);
                     }
                 }else{
-                    die(json_encode(array('status' => 0, 'data' => '您已上传过该书')));
+                    _ard("您已上传过该书",0);
                 }
 
             }else {
@@ -317,13 +328,13 @@
                 $bookdata = ['isbn' => $isbn, 'author' => $author, 'publisher' => $publisher, 'pubdate' => $pubdate, 'price' => $price, 'bookname' => $bookname, 'img' => $bookimg ];
                 $insertBook=Db::table('book')->insert($bookdata);
                 if($insertBook != 1){
-                    die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                    _ard("上传失败",0);
                 }
                 //添加上传表数据
                 $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
                 $ifupload=Db::table('upload')->insert($uploaddata);
                 if($ifupload != 1) {
-                    die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                    _ard("上传失败",0);
                 }
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
@@ -333,12 +344,12 @@
                             $num = $result[0]['sum'] + 1;
                             $ifupload=Db::table('tags')->where('tagname', $booktag[$i])->update(['sum' => $num]);//更新标签的sum
                             if($ifupload < 1){
-                                die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                                _ard("上传失败",0);
                             }
                             $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
                             $ifsuccess = Db::table('booktag')->insert($booktagdata);
                             if ($ifsuccess < 1) {
-                                die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                                _ard("上传失败",0);
                             }
                             $iftag = 1;
                         }
@@ -351,17 +362,17 @@
                        //更新其它标签的sum
                        $if_update =Db::query("update tags set sum =".$num." where number = 48");
                        if($if_update === false){
-                           die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                           _ard("上传失败",0);
                        }
                         $booktagdata=['isbn'=>$isbn,'tagnumber'=>$result[0]['number']];
                         $ifsuccess=Db::table('booktag')->insert($booktagdata);
                         if($ifsuccess < 1){
-                            die(json_encode(array('status' => 0, 'data' => '上传失败')));
+                            _ard("上传失败",0);
                         }else {
-                            die(json_encode(array('status' => 1, 'data' => '上传成功')));
+                            _ard("上传成功",1);
                         }
                    }else{
-                       die(json_encode(array('status' => 1, 'data' => '上传成功')));
+                       _ard("上传成功",1);
                    }
 
                  }
@@ -446,7 +457,7 @@
                 $user   = new User;
                 $bookname = $book->where('isbn',$isbn)->find()['bookname'];
 
-                $upload_infos = $upload->where('isbn',$isbn)->where('rent',0)->order('upload_time','desc')->select();
+                $upload_infos = $upload->where('isbn',$isbn)->where('rent',0)->where("username",'<>',$username)->order('upload_time','desc')->select();
                 foreach ($upload_infos as &$upload_info){
                     $upload_user = $upload_info['username'];
                     $upload_user_info = $user->where('username',$upload_user)->find();
@@ -475,7 +486,7 @@
             $upload_info = $upload->where("share_id",$share_id)->find();
             $isbn = $upload_info->isbn;
             $book_info = $book->where("isbn",$isbn)->find();
-            $borrow_num = $book_info + 1;
+            $borrow_num = $book_info->borrow_num + 1;
             $book->save(['borrow_num' => $borrow_num ],["isbn" => $isbn]);
 
             //借书表新增数据
@@ -572,6 +583,7 @@
                     $bookdata = $nolends;
                 }
 
+                $this->assign('username',$username);
                 $this->assign('bookdata',$bookdata);
                 $pages = ceil($total / $limit);
                 $tpage = new Page($pages);
@@ -587,6 +599,34 @@
             }
 
         }
+
+        /**
+         * 用户下架书籍
+         */
+        public function xiajia(Request $request)
+        {
+            $username = $request->post('username');
+            $isbn  = $request->post('isbn');
+            $upload = new Upload;
+            $book = new Book;
+            $booktag = new Booktag;
+            $result = $upload->where("isbn",$isbn)->where("username",$username)->where("rent",0)->delete();
+
+            //查看当前该书籍还是否有人在上传
+            $num = $upload->where("isbn",$isbn)->count();
+            if($num == 0){
+              $book->where("isbn",$isbn)->delete();
+              $booktag->where("isbn",$isbn)->delete();
+            }
+
+            if ($result > 0){
+                _ard("下架成功","OK");
+            }else{
+                _ard("下架失败","ERR");
+            }
+
+        }
+
 
 
       /**

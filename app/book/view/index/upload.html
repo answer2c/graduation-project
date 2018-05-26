@@ -233,15 +233,14 @@
             dataType:"json",
             success:function(result){
                 if(result.status == 1){
-                    alert(result.data);
+                    alert(result.msg);
                     window.location='/book/index/'
                 }else{
-                    alert(result.data);
+                    alert(result.msg);
                 }
             },
             error:function(result){
-                console.log(result);
-                // alert('上传失败');
+                alert('上传失败');
             }
         })
     })
