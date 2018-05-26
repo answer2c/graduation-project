@@ -649,6 +649,23 @@
           return $this->fetch();
       }
 
+
+      /**
+       * 更改个人信息
+       */
+      public function changeinfo(Request $request)
+      {
+          $username = $_GET['username'];
+          $tel = $request->post("tel");
+          $address = $request->post("address");
+          $email = $request->post("email");
+          $user = new User;
+          $update = $user->save(["tel" => $tel, "email" => $email , "address" => $address],["username" => $username]);
+          if ($update > 0){
+              _ard("修改成功","OK");
+          }
+      }
+
     }
 
     

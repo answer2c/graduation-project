@@ -45,7 +45,7 @@
 
                 <div class="collapse navbar-collapse hidemenu">
                         <ul class="nav navbar-nav navbar-left">
-                            <li class="active"><a href="#">首页</a></li>
+                            <li><a href="/book/index">首页</a></li>
                             <li><a href="{:url('/book/index/lend')}">借书</a></li>
                             <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
                             <li><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
@@ -88,19 +88,22 @@
              <h4>性别：{if ($sex == "male")} 男 {else / }女{/if}</h4>
          </div>
          <div class="row">
-             <h4>电话号码：<input type="text" value="{$tel}" class="form-control"></h4>
+             <h4>电话号码：<input type="text" value="{$tel}" class="form-control" id="tel"></h4>
+             <span id="tel_tip" style="color:red" class="tip"></span>
          </div>
 
          <div class="row">
-             <h4> 邮箱：<input type="text" value="{$email}" class="form-control"></h4>
+             <h4> 邮箱：<input type="text" value="{$email}" class="form-control" id="email"></h4>
+             <span id="email_tip" style="color:red"  class="tip"></span>
          </div>
          <div class="row">
-             <h4> 地址：<input type="text" value="{$address}" class="form-control"></h4>
+             <h4> 地址：<input type="text" value="{$address}" class="form-control" id="address"></h4>
+             <span id="address_tip" style="color:red" class="tip"></span>
          </div>
 
 
             <div class="row">
-                <input type="button" value="确认修改" id="usersub" class="btn btn-default">
+                <input type="button" value="确认修改" id="usersub" class="btn btn-default btn-success" onclick="change()">
             </div>
 
      </form>
@@ -110,9 +113,68 @@
 </div>
 
    
-    <script src="SITE_URL/static/js/test.js"></script>
     <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
     <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+        <script>
+            $("#email").blur(function(){
+                //验证邮箱
+                var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+                if(!myreg.test($("#email").val())){
+                    $("#email_tip").html("请输入正确格式的电子邮箱");
+                }else{
+                    $("#email_tip").html("");
+                }
+            })
 
+
+            $("#tel").blur(function(){
+                //验证手机号
+                var pat1 = /^[1][3,4,5,7,8][0-9]{9}$/;
+                if (!pat1.test($("#tel").val())){
+                    $("#tel_tip").html("请输入正确的格式的电话号码");
+                }else{
+                    $("#tel_tip").html("");
+                }
+            })
+
+
+           function change() {
+
+               $(".tip").each(function () {
+                   if ($(this).html() != "") {
+                       return false;
+                   }
+               })
+
+
+               var tel = $("#tel").val();
+               var address = $("#address").val();
+               var email = $("#email").val();
+
+
+
+               $.ajax({
+                   url: "/book/index/changeinfo?username={$username}",
+                   type: "post",
+                   dataType: "json",
+                   data: {
+                       "tel": tel,
+                       "email": email,
+                       "address": address
+                   },
+                   success: function (data) {
+                       if(data.status == "OK"){
+                           alert(data.msg);
+                           window.location.reload();
+                       }
+                   },
+                   error: function () {
+                       alert("操作失败");
+                   }
+
+               })
+
+           }
+        </script>
 </body>
 </html>
