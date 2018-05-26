@@ -67,16 +67,16 @@
                 <li><a href="{:url('/book')}">首页</a></li>
                 <li><a href="{:url('/book/index/lend')}">借书</a></li>
                 <li class="active"><a href="{:url('/book/index/returnbook')}">还书</a></li>
-                <li><a href="{:url('/book/index/mybook')}">我的书籍</a></li>
+                <li><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
                 <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
                 <li class="dropdown" >
                     <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class=""><a href="#" >借书流程</a></li>
+                        <li><a href="/book/index/process" >借书流程</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">常见问题</a></li>
+                        <li><a href="/book/index/question">常见问题</a></li>
 
                     </ul>
 
@@ -102,6 +102,7 @@
 </div>
 <hr>
 <div class="container">
+    共借{$total}本书
     <div class="row">
         {foreach $borrow_info as $value}
         <div class="col-sm-4 col-md-3">
@@ -119,7 +120,13 @@
 
 
 
-
+    {if ($total > 0)}
+    <nav aria-label="..." class="test">
+        <ul class="pagination">
+            {$pagelist}
+        </ul>
+    </nav>
+    {/if}
 
 </div>
 

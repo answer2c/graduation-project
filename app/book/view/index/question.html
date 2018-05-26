@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>借书</title>
+    <title>书籍详情</title>
 
     <link rel="stylesheet" href="SITE_URL/static/css/book.css">
     <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css">
@@ -12,8 +12,8 @@
     <style>
         #bookphoto{
             display: inline-block !important;
-            width:100px !important;
-            height:150px !important;
+            width:200px !important;
+            height:300px !important;
         }
         .booktag{
             margin-right:8px;
@@ -23,7 +23,7 @@
             height:270px !important;
         }
         .book_module{
-            height:450px;
+            height:200px;
         }
 
         .book_btn{
@@ -40,6 +40,10 @@
 
         .page_btn{
             cursor: pointer !important;
+        }
+
+        a{
+            text-decoration: none;
         }
 
     </style>
@@ -67,16 +71,16 @@
                 <li><a href="{:url('/book')}">首页</a></li>
                 <li><a href="{:url('/book/index/lend')}">借书</a></li>
                 <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
-                <li><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
+                <li ><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
                 <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
                 <li class="dropdown" >
                     <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class=""><a href="/book/index/process" >借书流程</a></li>
+                        <li ><a href="/book/index/process" >借书流程</a></li>
                         <li class="divider"></li>
-                        <li><a href="/book/index/question">常见问题</a></li>
+                        <li class="active"><a href="/book/index/question">常见问题</a></li>
 
                     </ul>
 
@@ -94,26 +98,42 @@
 
 </nav>
 <!-- 导航栏结束 -->
-
-
-
+<br>
 <div class="container">
+    <div class="row">
+        <h4>Q:怎样分享我的书籍？</h4>
+    </div>
+    <div class="row">
+        上传书籍您需要在登录账号后进入上传书籍页面，输入您书籍的ISBN号码，
+        点击上传后其他用户便可以搜索到您的上传信息，并得到您的电话号码，随后借书人便可以联系您取书，您需要跟借书人沟通好借书时间、地点、是否需要押金、还书地点等。
+    </div>
+    <hr>
+    <div class="row">
+        <h4>Q:怎么样归还我的书籍？</h4>
+    </div>
+    <div class="row">
+        您在借书后应该遵循与书籍持有者商量好的还书时间来归还书籍，在归还后登录网站进入还书页面，在相对应的书籍下点击归还按钮。
+    </div>
+    <hr>
+    <div class="row">
+        <h4>Q:怎么样确保我的书籍被归还？</h4>
+    </div>
+    <div class="row">
+        您在书籍被归还后应在我的书籍页面对应的借出书籍下点击确认已归还按钮，若借书人在规定的时间后仍未归还，请联系我们。
+    </div>
+    <hr>
+    <div class="row">
+        未能解决您的问题？请联系我们：<br>Tel:16697863255 &nbsp;&nbsp;E-mail:bookshare@qq.com
+    </div>
 
-<h3>TA的联系方式是：{$tel},请您尽快与TA联系取书</h3>
 
 </div>
-
-
-
-
-
-
-
-
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
 <script>
+
+
 
 
 </script>

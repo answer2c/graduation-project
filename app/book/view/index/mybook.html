@@ -42,6 +42,10 @@
             cursor: pointer !important;
         }
 
+        a{
+            text-decoration: none;
+        }
+
     </style>
 </head>
 <body>
@@ -67,16 +71,16 @@
                 <li><a href="{:url('/book')}">首页</a></li>
                 <li><a href="{:url('/book/index/lend')}">借书</a></li>
                 <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
-                <li class="active"><a href="{:url('/book/index/mybook')}">我的书籍</a></li>
+                <li class="active"><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
                 <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
                 <li class="dropdown" >
                     <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class=""><a href="#" >借书流程</a></li>
+                        <li><a href="/book/index/process" >借书流程</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">常见问题</a></li>
+                        <li><a href="/book/index/question">常见问题</a></li>
 
                     </ul>
 
@@ -95,51 +99,52 @@
 </nav>
 <!-- 导航栏结束 -->
 <br>
+
+
+
+
+
 <div class="container">
-    <h3>已上传的书</h3>
-
-    <hr>
     <div class="row">
-        {foreach $nolends as $nolend}
-            <div class="col-sm-4 col-md-3">
-                <div class="thumbnail b1 book_module">
-                    <div class="caption" >
-                        <h3>{$nolend->bookinfo['bookname']}</h3>
-                        <p>作者：{$nolend->bookinfo['author']}</p>
-                        <p class="book_btn"><a href="SITE_URL/book/index/" class="btn btn-primary" role="button">下架</a> </p>
-                    </div>
-                </div>
-            </div>
-        {/foreach}
+        {if ($view == "islended")}
+        <h4><a href="/book/index/mybook/view/nolended">已上传的书</a>/<span style="color:darkgray">已借出的书</span></h4>
+        {else /}
+        <h4><span style="color:darkgray">已上传的书</span>/<a href="/book/index/mybook/view/islended">已借出的书</a></h4>
+        {/if}
     </div>
-    <br>
 
-    <br>
-    <hr>
-    <h3>已借出的书</h3>
+
 
     <hr>
     <div class="row">
-        {foreach $islends as $islend}
-        <div class="col-sm-4 col-md-3">
-            <div class="thumbnail book_module  b1">
-                <div class="caption" >
-                    <h3>{$islend->bookinfo['bookname']}</h3>
-                    <p>作者：{$islend->bookinfo['author']}</p>
-                    <p class="book_btn"><a href="SITE_URL/book/index/returnconfirm?share_id={$nolend->share_id}" class="btn btn-primary" role="button">确认已归还</a> </p>
-                </div>
+    {foreach $bookdata as $value}
+    <div class="col-sm-4 col-md-3">
+        <div class="thumbnail b1 book_module">
+            <div class="caption" >
+            <h3>{value->bookinfo['bookname']}</h3>
+            <p>作者：{$value->bookinfo['author']}</p>
+                {if ($view == "islended")}
+                <p class="book_btn"><a href="/book/index/" class="btn btn-primary" role="button">确认已归还</a> </p>
+                {else /}
+                    <p class="book_btn"><a href="/book/index/" class="btn btn-primary" role="button">下架</a> </p>
+                {/if}
+
             </div>
         </div>
-        {/foreach}
     </div>
-
+    {/foreach}
+    </div>
 
 </div>
 
 
-
-
-
+    {if ($total > 0)}
+    <nav aria-label="..." class="test">
+    <ul class="pagination">
+    {$pagelist}
+    </ul>
+    </nav>
+    {/if}
 
 
 

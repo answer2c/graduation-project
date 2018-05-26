@@ -14,5 +14,6 @@
            $(function(){
                $(".detail").hide();
            })
-     
-     
+
+
+

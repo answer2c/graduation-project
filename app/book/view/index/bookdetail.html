@@ -67,16 +67,16 @@
                 <li><a href="{:url('/book')}">首页</a></li>
                 <li><a href="{:url('/book/index/lend')}">借书</a></li>
                 <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
-                <li><a href="{:url('/book/index/mybook')}">我的书籍</a></li>
+                <li><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
                 <li><a href="{:url('/book/index/upload')}">上传书籍</a></li>
                 <li class="dropdown" >
                     <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class=""><a href="#" >借书流程</a></li>
+                        <li><a href="/book/index/process" >借书流程</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">常见问题</a></li>
+                        <li><a href="/book/index/question">常见问题</a></li>
 
                     </ul>
 
@@ -165,9 +165,10 @@
 
                 <div class="input-group">
                     <span class="input-group-btn">
-                                <input type="button" name="sub" value="评论" id="sub" class="btn btn-success" >
+                                <input type="button" name="commentsub" value="评论" id="commentsub" class="btn btn-success" >
                     </span>
                 </div>
+
 
         </div>
     </form>
@@ -178,6 +179,11 @@
     <div class="row">
         {$comment['cname']}  {$comment['ctime']}<br><br>
         {$comment['content']}
+        {if (isset($username)) }
+        {if condition = "$username == $comment['cname']" }
+        <a href="" onclick="delcomment({$comment['cid']})">删除</a>
+        {/if}
+        {/if}
         <hr>
     </div>
 
@@ -185,6 +191,58 @@
 </div>
 
 
+<!-- 登录模块 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">登录</h4>
+            </div>
+            <form action="" method="post" class="form-horizontal">
+                <div class="modal-body">
+
+                    <div class="form-group">
+
+                        <label for="username" class="col-xs-5 col-sm-3 control-label">用户名：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <input type="text" id="username" class="form-control" name="username" placeholder='username'>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="pwd" class="col-xs-5 col-sm-3 control-label">密码：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <input type="password" id="pwd" class="form-control" name="pwd" placeholder='password'>
+
+                        </div>
+                    </div>
+
+
+
+
+
+
+                </div>
+
+                <div class="modal-footer">
+                    <span  id="logintip" style="color:red"></span>
+                    <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101458359&redirect_uri={$redirect_uri}&scope=get_user_info&state=12" >
+                        <img src="SITE_URL/static/image/qqs_login.png">
+                    </a>
+
+
+                    <input type="button" class="btn btn-primary" value="登录" id="loginsub">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
 
 
 
@@ -192,13 +250,47 @@
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
+<script src="SITE_URL/static/js/myjs1.js"></script>
 <script>
+    $("#loginsub").click(function(){
+        var username = $("#username").val();
+        var pwd = $("#pwd").val();
 
 
-    $("#sub").click(function(){
+        if (username == "" || pwd == ""){
+            $("#logintip").html("用户名和密码不能为空");
+        }else{
+            $("#logintip").html("");
+            $.ajax({
+                url:"/book/index/login",
+                type: "post",
+                dataType:"json",
+                data:{"username" : username,
+                    "pwd"      : pwd
+                },
+                success:function(data){
+                    alert(data.msg);
+                    if (data.status == "USER"){
+                        window.location.reload();
+                    }else if(data.status == "MAN"){
+                        window.location.href = "/book/manage/";
+                    }
+                },
+                error:function(){
+                    alert('登录失败');
+                }
+            })
+
+
+        }
+
+    })
+
+
+    $("#commentsub").click(function(){
         var content = $.trim($("#comm").val());
         if(content == ""){
-            alert('评论内容不能为空！');
+            $("#ctip").html('评论内容不能为空！');
             return false;
         }
         if(content.length < 8){
@@ -213,8 +305,8 @@
             url:'/book/index/comment',
             dataType:"json",
             data:{ "content":content,
-                     "isbn" :{$isbn}
-             },
+                "isbn" :{$isbn}
+            },
             success:function(result){
                 if(result.status == "OK"){
                     alert(result.msg);
@@ -229,6 +321,30 @@
         })
     })
 
+
+
+    function delcomment(cid){
+        var c=window.confirm("您确定要删除您的评论吗？");
+        if(c == true){
+            $.ajax({
+                url:"/book/index/delcomment",
+                type:"post",
+                dataType:"json",
+                data:{"cid" : cid},
+                success:function(data){
+                    if(data.status == "OK")
+                    {
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+
+                }
+            })
+        }
+
+    }
 </script>
+
 </body>
 </html>

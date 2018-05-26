@@ -12,8 +12,10 @@
     use app\book\model\Book;
     use app\book\model\Borrow;
     use app\book\model\Upload;
-    use app\common\Page;
     use app\book\model\Comment;
+    use app\book\model\Tags;
+    use app\common\Page;
+
 
     class Index extends Controller
     {
@@ -22,36 +24,28 @@
         public function index(){
 
             $login=checkUser();
+            $book = new Book;
+
             $this->assign('username',Session::get('username'));
             $this->assign('loginMess',$login);
             $this->assign('redirect_uri',urlencode(self::$redirect_uri));
-            
-            $bookset=Db::table('book')->order('borrow_num desc')->limit(5)->select();
-            for($i=0;$i<count($bookset);$i++){
-                $this->assign('book'.($i+1).'img',$bookset[$i]['img']);
-                $this->assign('book'.($i+1).'name',$bookset[$i]['bookname']);
-            }
 
-            return $this->fetch();
+            $bookset = $book->order('borrow_num','desc')->limit(5)->select();
+            $this->assign('bookset',$bookset);
+            return $this->fetch('index');
         }
 
         public function login(Request $request){
             $username=$request->post('username');
             $pwd=md5($request->post('pwd'));
             $result=Db::table('user')->where("username",$username)->where("passwd",$pwd)->select();
-            if($result==null){
-                echo '<script>alert("用户名密码不正确");window.history.back();</script>';
-                exit;
-
+            if ($result == null){
+                _ard("用户名和密码不正确","ERR");
             }else{
                 $authority = $result[0]['authority'];
                 $status = $result[0]['status'];
                 if ($status != 1){
-                    echo '<script>alert("账户异常！");window.history.back();</script>';
-                    exit;
-//                    $data = 1;
-//                    $this->redirect('/book/index',$data);
-
+                    _ard("账户异常 请联系管理人员","ERR");
                 }else{
                     $src=$result[0]['img'];
                     Session::set('username',$username);
@@ -60,9 +54,9 @@
                     Session::set('touxiang',$src);
 
                     if ($authority == 2){
-                        $this->redirect('/book/manage');
+                        _ard("登录成功","MAN");
                     }else{
-                        $this->redirect('/book');
+                        _ard("登录成功","USER");
                     }
                 }
 
@@ -128,22 +122,10 @@
            }
         }
 
-        public function testu(){
-            $user = new User;
-            $if_exists = $user->where("username","adminaaa")->select();
-            if(!empty($if_exists)){
-                echo 1;
-            }else{
-                echo 2;
-            }
-            var_dump($if_exists);exit;
-        }
-
 
         /**
          * 第三方登录处理函数
          */
-
          public function callback(){
              _cs();
             if(isset($_GET['code'])){
@@ -167,7 +149,7 @@
                     Session::set("username",$data['nickname']);
                     Session::set('authority',"1");
                     Session::set('touxiang',$data['figureurl_qq_1']);
-                    return $this->fetch('index');
+                    return $this->index();
                 }else{
                     return $this->fetch('addQQ');
                 }
@@ -177,6 +159,12 @@
          }
 
 
+        /**
+         * @param $qqname
+         * @param $qqimg
+         * @return mixed
+         * 增加QQ用户信息页面
+         */
          public function addQQ($qqname,$qqimg)
          {
              return $this->fetch('addQQ');
@@ -214,12 +202,10 @@
          * 借书页面
          */
         public function lend(){
-            if(!Session::has('username')){
-                echo "<script>alert('请先登录');window.location='/book/index';</script>";
-            
-            }else{
+
                 $login = checkUser();
                  $this->assign('loginMess',$login);
+                 $this->assign('redirect_uri',self::$redirect_uri);
 
                  $tags=Db::table('tags')->field('number,tagname')->select();
                  $this->assign('tags',$tags);
@@ -271,8 +257,8 @@
                 $this->assign('total',$total[0]);
                 $this->assign('pages',$pages);
                 $this->assign('bookList',$bookList);
-                return $this->fetch();
-            }
+                return $this->fetch('lend');
+
            
         }
 
@@ -281,7 +267,7 @@
          */
         public function upload(){
             if(!Session::has('username')){
-                echo "<script>alert('请先登录');window.location='/book/index';</script>";
+                echo "<script>alert('请先登录');window.history.back();</script>";
             
             }else{
                 $login=checkUser();
@@ -386,12 +372,17 @@
 
         public function userpage(){
             $login=checkUser();
-            $this->assign('username',Session::get('username'));
+            $user = new User;
             $this->assign('loginMess',$login);
-            $result=Db::table('user')->where('username',Session::get('username'))->select();
+            $this->assign('username',Session::get('username'));
+
+            $result = $user->where('username',Session::get('username'))->select();
+            $this->assign('sex',$result[0]->sex);
+            $this->assign('tel',$result[0]->tel);
+            $this->assign('address',$result[0]->address);
+            $this->assign('email',$result[0]->email);
             $this->assign('userphoto','http://www.answer2c.cn/'.$result['0']['img']);
-            $this->assign('username',$result['0']['username']);
-            
+
             return $this->fetch();
         }
 
@@ -418,6 +409,15 @@
                   $item['bookname'] = $book->where('isbn',$upload_info->isbn)->find()->bookname;
               }
 
+              $total = $borrow->where('borrow_user',$username)->count();
+              $limit = 30;
+              $pages = ceil($total[0]['total'] / $limit);
+
+              $tpage = new Page($pages);
+              $pagelist = $tpage->pagelist();
+              $this->assign("pagelist",$pagelist);
+              $this->assign('total',$total);
+
               $this->assign("loginMess",$login);
               $this->assign("borrow_info",$borrow_info);
               return $this->fetch();
@@ -433,7 +433,8 @@
         public function lendbook()
         {
             if(!Session::has('username')){
-                echo "<script>alert('请先登录');window.history.back();</script>";
+                echo "<script>alert('请先登录')</script>";
+                return  $this->lend();exit;
             }else{
                 $login = checkUser();
                 $isbn = $_GET['isbn'];
@@ -459,19 +460,29 @@
             }
         }
 
+
         public function lendconfirm()
         {
             $login = checkUser();
             $share_id = $_GET['share_id'];
             $tel = $_GET['tel'];
-            $borrow_user = Session::get('username');
-
+            $book = new Book;
             $upload = new Upload;
             $borrow = new Borrow;
+            $borrow_user = Session::get('username');
+
+            //更新书籍表中的borrow_num字段
+            $upload_info = $upload->where("share_id",$share_id)->find();
+            $isbn = $upload_info->isbn;
+            $book_info = $book->where("isbn",$isbn)->find();
+            $borrow_num = $book_info + 1;
+            $book->save(['borrow_num' => $borrow_num ],["isbn" => $isbn]);
+
             //借书表新增数据
-            $borrow->borrow_user=$borrow_user;
+            $borrow->borrow_user = $borrow_user;
             $borrow->share_id = $share_id;
             $ifborrow = $borrow->save();
+
 
             //upload更新rent字段的值
             $iflend = $upload->where('share_id',$share_id)->update(["rent" => 1]);
@@ -492,6 +503,7 @@
        */
       public function bookdetail()
       {
+          $this->assign("redirect_uri",self::$redirect_uri);
           $login = checkUser();
           $isbn = $_GET['isbn'];
           $url = "https://api.douban.com/v2/book/isbn/".$isbn;
@@ -515,21 +527,24 @@
           $comment = new Comment;
           $commentList = $comment->where('isbn',$isbn)->select();
 
+          if(Session::has('username')){
+              $this->assign("username",Session::get('username'));
+          }
           $this->assign("commentList",$commentList);
           $this->assign($data);
           return $this->fetch();
 
       }
 
+
         /**
          * 我的图书管理
          */
-
-        public function mybook()
+        public function mybook($view)
         {
             if(!Session::has('username')){
-            echo "<script>alert('请先登录');window.history.back();</script>";
-            return;
+                echo '<script>alert("请先登录");window.history.back();</script>';
+
             }else{
                 $login = checkUser();
                 $username = Session::get('username');
@@ -537,25 +552,43 @@
                 $upload = new Upload;
                 $borrow = new Borrow;
                 $book = new Book;
+                $limit = 10;
 
-                $islends = $upload->where('username',$username)->where("rent",1)->select();
-                $nolends =  $upload->where('username',$username)->where("rent",0)->select();
-
-                foreach ($nolends as &$value){
-                    $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                $bookdata = array();
+                $this->assign("view",$view);
+                if ($view == 'islended'){
+                    $islends = $upload->where('username',$username)->where("rent",1)->select(); //正在借出的书
+                    $total = $upload->where('username',$username)->where("rent",1)->count();
+                    foreach ($islends as &$value){
+                        $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                    }
+                    $bookdata = $islends;
+                }elseif ($view == 'nolended'){
+                    $nolends =  $upload->where('username',$username)->where("rent",0)->select();//未借出的书
+                    $total = $upload->where('username',$username)->where("rent",0)->count();
+                    foreach ($nolends as &$value){
+                        $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                    }
+                    $bookdata = $nolends;
                 }
-                foreach ($islends as &$value){
-                    $value->bookinfo = $book->where('isbn',$value->isbn)->find();
-                }
 
-                $data=["islends" => $islends , "nolends" => $nolends];
-                $this->assign($data);
+                $this->assign('bookdata',$bookdata);
+                $pages = ceil($total / $limit);
+                $tpage = new Page($pages);
+                $pagelist = $tpage->pagelist();
+                $this->assign("pagelist",$pagelist);
+                $this->assign('total',$total);
+
+                $this->assign("pagelist",$pagelist);
+                $this->assign('total',$total);
                 $this->assign("loginMess",$login);
 
                 return $this->fetch();
             }
 
         }
+
+
       /**
        * 评论书籍
        */
@@ -581,6 +614,40 @@
           }
       }
 
+      /**
+       * 用户删除评论
+       */
+      public function delcomment(Request $request)
+      {
+          $cid = $request->post('cid');
+          $comment = new Comment;
+          $comment->where('cid',$cid)->delete();
+          _ard("","OK");
+
+      }
+
+
+        /**
+         * 借书流程
+         * @return mixed
+         */
+      public function process()
+      {
+          $login = checkUser();
+          $this->assign("loginMess",$login);
+          return $this->fetch();
+      }
+
+        /**
+         * 常见问题
+         * @return mixed
+         */
+      public function question()
+      {
+          $login = checkUser();
+          $this->assign("loginMess",$login);
+          return $this->fetch();
+      }
 
     }
 
