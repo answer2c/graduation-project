@@ -84,14 +84,16 @@
             $user->idnum=$request->post('idnum');
             $user->address = $request->post('address');
             $user->tel=$request->post('tel');
+            $user->sex= $request->post('sex');
+            $user->qqname = "QQ用户_".$nickname;
 
 
             $user->regitime=time();
             $user->authority = 1;
 
-
             $add = $user->save();
             if ($add > 0){
+                Session::set("openid",$request->post("username"));
                 Session::set("username",$nickname);
                 Session::set("touxiang",$touxiang);
                 Session::set("authority",1);
@@ -152,11 +154,12 @@
                 $this->assign("openid",$data['openid']);
                 $this->assign("touxiang",$data['figureurl_qq_1']);
                 $this->assign("nickname",$data['nickname']);
-
+                $this->assign("gender",$data['gender']);
 
 
                 //判断该QQ用户是否已有用户信息
                 if (!empty($if_exists)){
+                    Session::set("openid",$data['openid']);
                     Session::set("username",$data['nickname']);
                     Session::set('authority',"1");
                     Session::set('touxiang',$data['figureurl_qq_1']);
@@ -217,9 +220,14 @@
                 $login = checkUser();
                  $this->assign('loginMess',$login);
                  $this->assign('redirect_uri',self::$redirect_uri);
+                 $tags = new Tags;
+                 $parent_tags = $tags->where("parent_no",0)->order("number","asc")->select();
+                 foreach ($parent_tags as &$parent_tag){
+                     $parent_tag->child = $tags->where("parent_no",$parent_tag['number'])->select();
+                 }
 
-                 $tags=Db::table('tags')->field('number,tagname')->select();
-                 $this->assign('tags',$tags);
+
+                 $this->assign('tags',$parent_tags);
                  $where = '';
 
                  //确定where条件
@@ -242,7 +250,7 @@
                  }
 
                  //确定limit条件与页数
-                 $limit  = 20;
+                 $limit  = 16;
                  $offset = 0;
                  $totalSql = "select count(*) as total from book where 1=1 ".$where;
                  $total = Db::query($totalSql);
@@ -252,8 +260,7 @@
                 $pagelist = $tpage->pagelist();
                 $this->assign("pagelist",$pagelist);
                  //确定分页信息
-                $pageStart = 0;
-                $pageEnd = 0;
+
                 if(!isset($_GET['page'])){
                     $_GET['page'] = 1;
                 }
@@ -304,15 +311,23 @@
             $booktag = explode(' ', $request->post('booktag'));
             $price = substr($request->post('price'), 0, -3);
             $bookimg = $request->post('bookimg');
-            $book_intro = $request->post('intro');
 
 //           //查看当前书籍信息是否存在
             $ifbook = Db::table('book')->where('isbn', $isbn)->select();
             if (!empty($ifbook)) {
                 //图书存在，判断该用户是否上传过该书，若无则更新upload表
-                $ifupload = Db::table('upload')->where('username', Session::get('username'))->where('isbn', $isbn)->select();
+                if (Session::has('open_id')){
+                    $ifupload = Db::table('upload')->where('username', Session::get('openid'))->where('isbn', $isbn)->select();
+                }else{
+                    $ifupload = Db::table('upload')->where('username', Session::get('username'))->where('isbn', $isbn)->select();
+                }
                 if (empty($ifupload)) {
-                    $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                    if (Session::has('openid')){
+                        $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0'];
+                    }else{
+                        $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                    }
+
                     $ifsuccess = Db::table('upload')->insert($uploaddata);
                     if ($ifsuccess == 1) {
                         _ard("上传成功",1);
@@ -331,25 +346,34 @@
                     _ard("上传失败",0);
                 }
                 //添加上传表数据
-                $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                if(Session::has('openid')){
+                    $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0'];
+                }else{
+                    $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                }
                 $ifupload=Db::table('upload')->insert($uploaddata);
+
                 if($ifupload != 1) {
                     _ard("上传失败",0);
                 }
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
                         $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
-                        if (!empty($result)) {
-                            $tagnumber = $result[0]['number'];
+
+                        if (!empty($result) && $result[0]['parent_no'] != 0 ) {
                             $num = $result[0]['sum'] + 1;
-                            $ifupload=Db::table('tags')->where('tagname', $booktag[$i])->update(['sum' => $num]);//更新标签的sum
-                            if($ifupload < 1){
-                                _ard("上传失败",0);
+                            $utag = new Tags;
+                            $csave = $utag->save(["sum" => $num],["tagname" => $booktag[$i]]);//更新标签的sum
+                            $ptag = $utag->where("number",$result[0]["parent_no"])->select();
+                            $psum = $ptag[0]->sum + 1;
+                            $psave = $utag->save(["sum" => $psum],["number" => $result[0]["parent_no"]]);
+                            if($csave < 1 || $psave < 1){
+                                _ard("上传失败1",0);
                             }
                             $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
                             $ifsuccess = Db::table('booktag')->insert($booktagdata);
                             if ($ifsuccess < 1) {
-                                _ard("上传失败",0);
+                                _ard("上传失败2",0);
                             }
                             $iftag = 1;
                         }
@@ -357,17 +381,17 @@
 
               //若无对应标签，则默认添加至‘其它’标签中
                    if($iftag == 0){
-                        $result = Db::table('tags')->where('number',48)->select();
+                        $result = Db::table('tags')->where('number',66)->select();
                         $num = $result[0]['sum'] + 1;
                        //更新其它标签的sum
                        $if_update =Db::query("update tags set sum =".$num." where number = 48");
                        if($if_update === false){
-                           _ard("上传失败",0);
+                           _ard("上传失败3",0);
                        }
                         $booktagdata=['isbn'=>$isbn,'tagnumber'=>$result[0]['number']];
                         $ifsuccess=Db::table('booktag')->insert($booktagdata);
                         if($ifsuccess < 1){
-                            _ard("上传失败",0);
+                            _ard("上传失败4",0);
                         }else {
                             _ard("上传成功",1);
                         }
@@ -387,7 +411,12 @@
             $this->assign('loginMess',$login);
             $this->assign('username',Session::get('username'));
 
-            $result = $user->where('username',Session::get('username'))->select();
+            if(Session::has('openid')){
+                $result = $user->where('username',Session::get('openid'))->select();
+
+            }else{
+                $result = $user->where('username',Session::get('username'))->select();
+            }
             $this->assign('sex',$result[0]->sex);
             $this->assign('tel',$result[0]->tel);
             $this->assign('address',$result[0]->address);
@@ -413,14 +442,14 @@
               $upload = new Upload;
               $book = new Book;
 
-              $borrow_info = $borrow->where('borrow_user', $username)->where('is_return',0)->select();
+              $borrow_info = $borrow->where('borrow_user', $username)->where('is_return',0)->where("return_time","")->select();
               foreach ($borrow_info as &$item) {
                   $upload_info = $upload->where("share_id",$item->share_id)->find();
                   $item['upload_user'] = $upload_info->username;
                   $item['bookname'] = $book->where('isbn',$upload_info->isbn)->find()->bookname;
               }
 
-              $total = $borrow->where('borrow_user',$username)->count();
+              $total = $borrow->where('borrow_user', $username)->where('is_return',0)->where("return_time","")->count();
               $limit = 30;
               $pages = ceil($total[0]['total'] / $limit);
 
@@ -437,6 +466,25 @@
 
 
       }
+
+        /**
+         * 借书人归还具体书籍
+         */
+        public function returnconfirm()
+        {
+
+            $share_id = $_GET['share_id'];
+            $borrow = new Borrow;
+            $return_time = date("Y-m-d H:i:s",time());
+            $result = $borrow->save(["return_time" => $return_time],["share_id" => $share_id]);
+            if($result > 0){
+                _ard("归还成功","OK");
+            }else{
+                _ard("归还失败","ERR");
+            }
+
+        }
+
 
         /**
          * 图书借阅
@@ -558,7 +606,11 @@
 
             }else{
                 $login = checkUser();
-                $username = Session::get('username');
+                if (Session::has('openid')){
+                    $username = Session::get('openid');
+                }else{
+                    $username = Session::get('username');
+                }
 
                 $upload = new Upload;
                 $borrow = new Borrow;

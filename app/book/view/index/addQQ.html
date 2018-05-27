@@ -68,6 +68,7 @@
         <input type="text" hidden value="{$nickname}" id="nickname">
         <input type="text" hidden value="{$openid}"  id="openid">
         <input type="text"  value="{$touxiang}" id="touxiang" hidden style="display: none">
+        <input type="text" id="sex" value="{$gender}" hidden style="display: none">
         <div class="form-group">
 
             <label for="tel" class="col-xs-5 col-sm-3 control-label">电话号码：</label>
@@ -177,6 +178,8 @@
             var idnum = $("#idnum").val();
             var touxiang = $("#touxiang").val();
             var nickname = $("#nickname").val();
+            var sex = $("#sex").val();
+
             $.ajax({
                 url:"/book/index/addQQuser",
                 type:"POST",
@@ -186,7 +189,8 @@
                         "address" : address,
                         "idnum"   : idnum,
                         "touxiang": touxiang,
-                        "nickname": nickname
+                        "nickname": nickname,
+                        "sex"  :    sex
                 },
                 success:function(data){
                     if(data.status == "OK"){

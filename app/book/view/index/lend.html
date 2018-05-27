@@ -42,6 +42,9 @@
             cursor: pointer !important;
         }
 
+        .hidec{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -118,10 +121,24 @@
 
     </form>
     <br><br><br>
-    {foreach $tags as $tag }
-    <a href="/book/index/lend/?tag={$tag.number}" class="booktag">{$tag.tagname}</a>
+    <div class="row">
+    {foreach $tags as $tag}
+        {if ($tag->number == 66)}
+        <a href="/book/index/lend?tag={$tag->number}"> {$tag->tagname} </a>
+        {else / }<a  href="javascript:void(0)" onclick="showchild({$tag->number})">{$tag->tagname}</a>
+
+        {/if}
     {/foreach}
-    <hr>
+     </div>
+
+    {foreach $tags as $tag}
+    <div class="row hidec" id="child{$tag->number}" >
+        {foreach $tag->child as $val}
+        <a href="/book/index/lend?tag={$val->number}"> {$val->tagname} </a>
+        {/foreach}
+    </div>
+    {/foreach}
+         <hr>
 
 
         <div class="row">
@@ -261,6 +278,12 @@
     })
 
 
+    function showchild(number){
+        $(".hidec").each(function(){
+            $(this).hide();
+        })
+        $("#child"+number).css("display","block");
+    }
 </script>
 </body>
 </html>

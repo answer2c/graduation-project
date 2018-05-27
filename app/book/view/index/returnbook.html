@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>借书</title>
+    <title>还书</title>
 
     <link rel="stylesheet" href="SITE_URL/static/css/book.css">
     <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css">
@@ -111,7 +111,7 @@
                     <h3>{$value['bookname']}</h3>
                     <p>上传者：{$value['upload_user']}</p>
                     <p>借书时间：{$value['borrow_time']}</p>
-                    <p class="book_btn"><a href="SITE_URL/book/index/returnconfirm" class="btn btn-primary" role="button">归还</a> </p>
+                    <p class="book_btn"><a href="" class="btn btn-primary" role="button" onclick="returnbook({$value['share_id']})">归还</a> </p>
                 </div>
             </div>
         </div>
@@ -141,7 +141,26 @@
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
 <script>
+    function returnbook(sid){
+        var con = window.confirm("您确定归回该书籍吗？");
+        if (con == true){
+            $.ajax({
+                url:"/book/index/returnconfirm?share_id="+sid,
+                type:"GET",
 
+                dataType:"json",
+                success:function(data){
+                    alert(data.msg);
+                    if(data.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert("操作失败");
+                }
+            })
+        }
+    }
 
 </script>
 </body>

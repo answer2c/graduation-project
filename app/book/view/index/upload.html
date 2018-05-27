@@ -200,7 +200,7 @@
                 $("#author").val(result.author);
                 $("#price").val(result.price);
                 var tags="";
-                for(var i=0;i<2;i++){
+                for(var i = 0;i < 4;i++){
                     tags+=result.tags[i].name;
                     tags+=" ";
                 }
@@ -233,14 +233,16 @@
             dataType:"json",
             success:function(result){
                 if(result.status == 1){
+                    // console.log(result.msg);
                     alert(result.msg);
                     window.location='/book/index/'
                 }else{
                     alert(result.msg);
+                    // console.log(result.msg);
                 }
             },
             error:function(result){
-                alert('上传失败');
+                alert(result.msg);
             }
         })
     })
