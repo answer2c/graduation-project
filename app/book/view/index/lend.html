@@ -45,6 +45,8 @@
         .hidec{
             display: none;
         }
+
+
     </style>
 </head>
 <body>
@@ -134,7 +136,7 @@
     {foreach $tags as $tag}
     <div class="row hidec" id="child{$tag->number}" >
         {foreach $tag->child as $val}
-        <a href="/book/index/lend?tag={$val->number}"> {$val->tagname} </a>
+        <a href="/book/index/lend?tag={$val->number}" > {$val->tagname} </a>
         {/foreach}
     </div>
     {/foreach}
@@ -142,6 +144,10 @@
 
 
         <div class="row">
+            {if (isset($current_tagname))} <h5>当前图书标签：
+                {$current_parent_tagname} >> {$current_tagname}
+
+            </h5>{/if}
             {if condition="(!empty($bookList))")}
              <p>共搜索到{$total['total']}本书籍</p>
                 {foreach $bookList as $book}

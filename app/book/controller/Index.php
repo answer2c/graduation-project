@@ -235,8 +235,17 @@
                      $where.="and isbn = '".$_GET['book']."' or bookname  like '%".$_GET['book']."%' or author like '%".$_GET['book']."%'";
                  }
                  if(isset($_GET['tag'])){
-                     $sql = "select isbn from booktag where tagnumber = ".$_GET['tag'];
-                     $isbnList = Db::query($sql);
+                     $current_tag = $tags->where('number',$_GET['tag'])->select()[0];
+                     $current_tagname = $current_tag['tagname'];
+                     $current_parent_tagname = $tags->where('number',$current_tag['parent_no'])->select()[0]['tagname'];
+                     $this->assign("current_tagname",$current_tagname);
+                     $this->assign("current_parent_tagname",$current_parent_tagname);
+
+
+                     $booktag = new Booktag;
+//                     $sql = "select isbn from booktag where tagnumber = ".$_GET['tag'];
+//                     $isbnList = Db::query($sql);
+                     $isbnList = $booktag->where("tagnumber",$_GET['tag'])->field('isbn')->select();
                      if (!empty($isbnList)) {
                          $isbn_in = "";
                          foreach ($isbnList as $val) {

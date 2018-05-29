@@ -357,9 +357,6 @@
         if (bookintro.length > 150){
             $("#content_intro").html(bookintro.substring(0,150));
             showmore.innerHTML="...查看更多";
-        }else {
-            $("#content_intro").html(bookintro);
-            showmore.innerHTML = "收起";
         }
 
         $("#content_intro").append(showmore);
@@ -373,9 +370,6 @@
         if (authorintro.length > 150){
             $("#author_intro").html(authorintro.substring(0,150));
             showai.innerHTML="...查看更多";
-        }else {
-            $("#author_intro").html(authorintro);
-            showai.innerHTML = "收起";
         }
 
         $("#author_intro").append(showai);
