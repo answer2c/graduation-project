@@ -129,21 +129,22 @@
     <br>
     <hr>
     <div class="row">
-        <div class="col-sm-2" style="font-size:20px">内容简介：</div>
+        <div class="col-sm-2" style="font-size:20px" >内容简介：</div>
+    </div>
+    <br>
+    <div class="row" >
+            <div class="col-sm-10" id="content_intro">
+                {$book_intro}
+            </div>
+    </div>
+
+    <br>
+    <div class="row">
+        <div class="col-sm-2" style="font-size:20px" >作者简介：</div>
     </div>
     <br>
     <div class="row">
-        <div class="col-sm-10">
-            {$book_intro}
-        </div>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-sm-2" style="font-size:20px">作者简介：</div>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-sm-10">
+        <div class="col-sm-10" id="author_intro">
             {$author_intro}
         </div>
     </div>
@@ -344,6 +345,86 @@
         }
 
     }
+
+    var bookintro = $("#content_intro").html();
+    var authorintro = $("#author_intro").html();
+
+    $(function(){
+        var showmore = document.createElement("a");
+        showmore.id="showmore";
+        showmore.href="javascript:bi_btn()";
+
+        if (bookintro.length > 150){
+            $("#content_intro").html(bookintro.substring(0,150));
+            showmore.innerHTML="...查看更多";
+        }else {
+            $("#content_intro").html(bookintro);
+            showmore.innerHTML = "收起";
+        }
+
+        $("#content_intro").append(showmore);
+
+
+
+        var showai = document.createElement("a");
+        showai.id="showai";
+        showai.href="javascript:ai_btn()";
+
+        if (authorintro.length > 150){
+            $("#author_intro").html(authorintro.substring(0,150));
+            showai.innerHTML="...查看更多";
+        }else {
+            $("#author_intro").html(authorintro);
+            showai.innerHTML = "收起";
+        }
+
+        $("#author_intro").append(showai);
+
+
+    })
+
+
+
+
+    function bi_btn(){
+        if ($("#showmore").html() == "...查看更多"){
+            var showmore = document.createElement("a");
+            showmore.id="showmore";
+            showmore.href="javascript:bi_btn()";
+            $("#content_intro").html(bookintro);
+            $("#content_intro").append(showmore);
+            $("#showmore").html("收起");
+        }else{
+            var showmore = document.createElement("a");
+            showmore.id="showmore";
+            showmore.href="javascript:bi_btn()";
+            $("#content_intro").html(bookintro.substring(0,150));
+            $("#content_intro").append(showmore);
+            $("#showmore").html("...查看更多");
+        }
+
+    }
+
+
+    function ai_btn(){
+        if ($("#showai").html() == "...查看更多"){
+            var showai = document.createElement("a");
+            showai.id="showai";
+            showai.href="javascript:ai_btn()";
+            $("#author_intro").html(authorintro);
+            $("#author_intro").append(showai);
+            $("#showai").html("收起");
+        }else{
+            var showai = document.createElement("a");
+            showai.id="showai";
+            showai.href="javascript:ai_btn()";
+            $("#author_intro").html(authorintro.substring(0,150));
+            $("#author_intro").append(showai);
+            $("#showai").html("...查看更多");
+        }
+
+    }
+
 </script>
 
 </body>

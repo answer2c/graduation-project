@@ -55,9 +55,9 @@
                     Session::set('touxiang',$src);
 
                     if ($authority == 2){
-                        _ard("登录成功","MAN");
+                        _ard("登录成功","MAN");   //管理员
                     }else{
-                        _ard("登录成功","USER");
+                        _ard("登录成功","USER");  // 普通用户
                     }
                 }
 
@@ -356,10 +356,10 @@
                 if($ifupload != 1) {
                     _ard("上传失败",0);
                 }
+
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
                         $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
-
                         if (!empty($result) && $result[0]['parent_no'] != 0 ) {
                             $num = $result[0]['sum'] + 1;
                             $utag = new Tags;
@@ -497,7 +497,11 @@
             }else{
                 $login = checkUser();
                 $isbn = $_GET['isbn'];
-                $username = Session::get('username');
+                if (Session::has('openid')) {
+                    $username = Session::get('openid');
+                }else{
+                    $username = Session::get('username');
+                }
 
                 $book = new Book;
                 $borrow = new Borrow;
