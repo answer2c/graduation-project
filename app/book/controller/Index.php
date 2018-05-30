@@ -237,9 +237,11 @@
                  if(isset($_GET['tag'])){
                      $current_tag = $tags->where('number',$_GET['tag'])->select()[0];
                      $current_tagname = $current_tag['tagname'];
-                     $current_parent_tagname = $tags->where('number',$current_tag['parent_no'])->select()[0]['tagname'];
+                     if($current_tag['parent_no'] != 0){
+                         $current_parent_tagname = $tags->where('number',$current_tag['parent_no'])->select()[0]['tagname'];
+                         $this->assign("current_parent_tagname",$current_parent_tagname);
+                     }
                      $this->assign("current_tagname",$current_tagname);
-                     $this->assign("current_parent_tagname",$current_parent_tagname);
 
 
                      $booktag = new Booktag;
@@ -372,7 +374,7 @@
                         $result = $dbtag->where('tagname',$booktag[$i])->select();
 
 //                        $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
-                        if (!empty($result) && $result[0]['parent_no'] != 0 ) {
+                        if (!empty($result)) {
                             $num = $result[0]['sum'] + 1;
                             $utag = new Tags;
                             $csave = $utag->save(["sum" => $num],["tagname" => $booktag[$i]]);//更新标签的sum
@@ -381,9 +383,7 @@
 
                             $psum = $ptag[0]->sum + 1;
                             $psave = $utag->save(["sum" => $psum],["number" => $result[0]["parent_no"]]);
-//                            _ard($psave ,1);
-//                            $rr = $csave."/".$psave;
-//                            _ard($rr,1);
+
 
                             if($csave < 1){
                                 _ard("上传失败",0);

@@ -145,7 +145,9 @@
 
         <div class="row">
             {if (isset($current_tagname))} <h5>当前图书标签：
-                {$current_parent_tagname} >> {$current_tagname}
+              {if (isset($current_parent_tagname))}
+
+                {$current_parent_tagname} >> {/if}{$current_tagname}
 
             </h5>{/if}
             {if condition="(!empty($bookList))")}
