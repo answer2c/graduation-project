@@ -368,21 +368,30 @@
 
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
-                        $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
+                        $dbtag = new Tags;
+                        $result = $dbtag->where('tagname',$booktag[$i])->select();
+
+//                        $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
                         if (!empty($result) && $result[0]['parent_no'] != 0 ) {
                             $num = $result[0]['sum'] + 1;
                             $utag = new Tags;
                             $csave = $utag->save(["sum" => $num],["tagname" => $booktag[$i]]);//更新标签的sum
                             $ptag = $utag->where("number",$result[0]["parent_no"])->select();
+
+
                             $psum = $ptag[0]->sum + 1;
                             $psave = $utag->save(["sum" => $psum],["number" => $result[0]["parent_no"]]);
-                            if($csave < 1 || $psave < 1){
-                                _ard("上传失败1",0);
+//                            _ard($psave ,1);
+//                            $rr = $csave."/".$psave;
+//                            _ard($rr,1);
+
+                            if($csave < 1){
+                                _ard("上传失败",0);
                             }
                             $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
                             $ifsuccess = Db::table('booktag')->insert($booktagdata);
                             if ($ifsuccess < 1) {
-                                _ard("上传失败2",0);
+                                _ard("上传失败",0);
                             }
                             $iftag = 1;
                         }
@@ -674,9 +683,14 @@
             $isbn  = $request->post('isbn');
             $upload = new Upload;
             $book = new Book;
+            $dbtag = new Tags;
             $booktag = new Booktag;
             $result = $upload->where("isbn",$isbn)->where("username",$username)->where("rent",0)->delete();
 
+            $tags = $booktag->where('isbn',$isbn)->select();
+            foreach ($tags as $tag){
+                $dbtag->where('number',$tag['tagnumber'])->setDec('sum');
+            }
             //查看当前该书籍还是否有人在上传
             $num = $upload->where("isbn",$isbn)->count();
             if($num == 0){
