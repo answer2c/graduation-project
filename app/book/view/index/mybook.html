@@ -127,7 +127,7 @@
                 <p>ISBN:{$value->bookinfo['isbn']}</p>
                 <p>上传时间：{$value->upload_time}</p>
                 {if ($view == "islended")}
-                <p class="book_btn"><a href="/book/index/" class="btn btn-primary" role="button">确认已归还</a> </p>
+                <p class="book_btn"><a href="#" onclick="returnfinal({$value->share_id})" class="btn btn-primary" role="button">确认已归还</a> </p>
                 {else /}
                     <p class="book_btn"><a href="#" class="btn btn-primary" role="button" onclick="xiajia('{$username}',{$value->bookinfo['isbn']})">下架</a> </p>
                 {/if}
@@ -179,7 +179,27 @@
         }
     }
 
+function returnfinal(share_id)
+{
+    var if_return = window.confirm("您确定这本书已归还吗？");
+    if (if_return ==  true){
+        $.ajax({
+            url:"/book/index/returnfinal?share_id="+share_id,
+            type:"get",
+            dataType:"json",
+            success:function(result){
+                alert(result.msg);
+                if(result.status == "OK"){
+                    window.location.reload();
+                }
+            },
+            error:function(){
+                alert("操作失败");
+            }
 
+        })
+    }
+}
 
 </script>
 </body>

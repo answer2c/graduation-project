@@ -451,7 +451,6 @@
       /**
        * 书籍归还部分
        */
-
       public function returnbook()
       {
           if(!Session::has('username')){
@@ -512,6 +511,23 @@
 
 
         /**
+         * 图书所有人确认归还
+         */
+        public function returnfinal()
+        {
+            $share_id  = $_GET['share_id'];
+            $upload = new Upload;
+            $borrow = new Borrow;
+            $b_result = $borrow->save(['is_return' => 1],['share_id' => $share_id]);
+            $u_result = $upload->save(['rent' => 0 ],['share_id' => $share_id ]);
+            if ($b_result > 0 && $u_result > 0){
+                _ard("操作成功","OK");
+            }else{
+                _ard("操作失败1","ERR");
+            }
+        }
+
+            /**
          * 图书借阅
          */
         public function lendbook()
