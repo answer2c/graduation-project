@@ -428,6 +428,9 @@
             $user = new User;
             $this->assign('loginMess',$login);
             $this->assign('username',Session::get('username'));
+            if (Session::has('openid')){
+                $this->assign("openid",Session::get('openid'));
+            }
 
             if(Session::has('openid')){
                 $result = $user->where('username',Session::get('openid'))->select();
@@ -455,21 +458,25 @@
               echo "<script>alert('请先登录');window.history.back();</script>";
           }else{
               $login = checkUser();
-              $username = Session::get('username');
+              if (Session::has('openid')){
+                  $username = Session::get('openid');
+              }else{
+                  $username = Session::get('username');
+              }
               $borrow = new Borrow;
               $upload = new Upload;
               $book = new Book;
 
-              $borrow_info = $borrow->where('borrow_user', $username)->where('is_return',0)->where("return_time","")->select();
+              $borrow_info = $borrow->where('borrow_user', $username)->where('is_return',0)->where('return_time',null)->select();
               foreach ($borrow_info as &$item) {
                   $upload_info = $upload->where("share_id",$item->share_id)->find();
                   $item['upload_user'] = $upload_info->username;
                   $item['bookname'] = $book->where('isbn',$upload_info->isbn)->find()->bookname;
               }
 
-              $total = $borrow->where('borrow_user', $username)->where('is_return',0)->where("return_time","")->count();
-              $limit = 30;
-              $pages = ceil($total[0]['total'] / $limit);
+              $total = $borrow->where('borrow_user', $username)->where('is_return',0)->where("return_time",null)->count();
+              $limit = 20;
+              $pages = ceil($total / $limit);
 
               $tpage = new Page($pages);
               $pagelist = $tpage->pagelist();

@@ -81,6 +81,7 @@
  <div class="container">
      <br><br>
      <form action="/book/index/adduser" method="post" class="form-horizontal" id="myform">
+         <input type="hidden" value="{if (isset($openid))}{$openid}{else / }$username  {/if}" id="user">
          <div class="row">
              <h4>用户名：{$username}</h4>
          </div>
@@ -139,7 +140,6 @@
 
 
            function change() {
-
                $(".tip").each(function () {
                    if ($(this).html() != "") {
                        return false;
@@ -150,11 +150,11 @@
                var tel = $("#tel").val();
                var address = $("#address").val();
                var email = $("#email").val();
-
+               var username = $("#user").val();
 
 
                $.ajax({
-                   url: "/book/index/changeinfo?username={$username}",
+                   url: "/book/index/changeinfo?username="+username,
                    type: "post",
                    dataType: "json",
                    data: {
