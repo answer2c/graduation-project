@@ -245,8 +245,6 @@
 
 
                      $booktag = new Booktag;
-//                     $sql = "select isbn from booktag where tagnumber = ".$_GET['tag'];
-//                     $isbnList = Db::query($sql);
                      $isbnList = $booktag->where("tagnumber",$_GET['tag'])->field('isbn')->select();
                      if (!empty($isbnList)) {
                          $isbn_in = "";
@@ -261,8 +259,8 @@
                  }
 
                  //确定limit条件与页数
-                 $limit  = 16;
-                 $offset = 0;
+                 $limit  = 8;
+                 $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit - 1: 0;
                  $totalSql = "select count(*) as total from book where 1=1 ".$where;
                  $total = Db::query($totalSql);
                  $pages = ceil($total[0]['total'] / $limit);
@@ -277,12 +275,12 @@
                 }
 
 
-                     $offset = $limit * ($_GET['page'] - 1);
 
 
                 //搜索所有符合条件的书籍
                 $sql = "select * from book where status=1 ".$where." limit {$offset},{$limit}";
-                $bookList = Db::query($sql);
+
+              $bookList = Db::query($sql);
                 $this->assign('total',$total[0]);
                 $this->assign('pages',$pages);
                 $this->assign('bookList',$bookList);
@@ -660,19 +658,20 @@
                 $upload = new Upload;
                 $borrow = new Borrow;
                 $book = new Book;
-                $limit = 10;
+                $limit = 1;
+                $offset = isset($_GET['page'])? $_GET['page'] * $limit -1 : 0;
 
                 $bookdata = array();
                 $this->assign("view",$view);
                 if ($view == 'islended'){
-                    $islends = $upload->where('username',$username)->where("rent",1)->select(); //正在借出的书
+                    $islends = $upload->where('username',$username)->where("rent",1)->limit($offset,$limit)->select(); //正在借出的书
                     $total = $upload->where('username',$username)->where("rent",1)->count();
                     foreach ($islends as &$value){
                         $value->bookinfo = $book->where('isbn',$value->isbn)->find();
                     }
                     $bookdata = $islends;
                 }elseif ($view == 'nolended'){
-                    $nolends =  $upload->where('username',$username)->where("rent",0)->select();//未借出的书
+                    $nolends =  $upload->where('username',$username)->where("rent",0)->limit($offset,$limit)->select();//未借出的书
                     $total = $upload->where('username',$username)->where("rent",0)->count();
                     foreach ($nolends as &$value){
                         $value->bookinfo = $book->where('isbn',$value->isbn)->find();

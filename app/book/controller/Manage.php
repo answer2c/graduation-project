@@ -45,9 +45,14 @@
             if(Session::get('authority') != 2){
                 $this->redirect('/book/index');
             }
+
+            $limit = 3;
             $login = checkUser();
             $book = new Book;
             $book_infos = $book->select();
+            $total = $book->count();
+            $pages = ceil($total / $limit);
+            $page = new Page($pages);
             $this->assign("book_infos",$book_infos);
             $this->assign('loginMess',$login);
             return $this->fetch();
@@ -79,4 +84,79 @@
             $this->assign('loginMess',$login);
             return $this->fetch();
         }
+
+        public function ajaxBlock(Request $request)
+        {
+            $isbn = $request->post('isbn');
+            $book = new Book;
+            $result = $book->save(["status" => 0],['isbn' => $isbn]);
+            if($result < 1 ){
+                _ard("下架失败", "ERR");
+            }else{
+                _ard("下架成功","OK");
+            }
+        }
+
+        public function ajaxPass(Request $request)
+        {
+            $isbn = $request->post("isbn");
+            $book = new Book;
+            $result = $book->save(["status" => 1 ],["isbn" => $isbn]);
+            if($result < 1 ){
+                _ard("审核失败", "ERR");
+            }else{
+                _ard("审核成功","OK");
+            }
+        }
+
+        public function blockUser(Request $request)
+        {
+            $username = $request->post("username");
+            $user = new User;
+            $result = $user->save(["status" => 0 ],["username" => $username]);
+            if($result < 1 ){
+                _ard("拉黑失败", "ERR");
+            }else{
+                _ard("拉黑成功","OK");
+            }
+        }
+
+        public function recoverUser(Request $request)
+        {
+            $username = $request->post("username");
+            $user = new User;
+            $result = $user->save(["status" => 1 ],["username" => $username]);
+            if($result < 1 ){
+                _ard("恢复失败", "ERR");
+            }else{
+                _ard("恢复成功","OK");
+            }
+        }
+
+
+        public function recoverComment(Request $request)
+        {
+            $cid = $request->post("cid");
+            $comment = new Comment;
+            $result = $comment->save(["status" => 1 ],["cid" => $cid]);
+            if($result < 1 ){
+                _ard("恢复失败", "ERR");
+            }else{
+                _ard("恢复成功","OK");
+            }
+        }
+
+        public function deleteComment(Request $request)
+        {
+            $cid = $request->post("cid");
+            $comment = new Comment;
+            $result = $comment->save(["status" => 0 ],["cid" => $cid]);
+            if($result < 1 ){
+                _ard("删除失败", "ERR");
+            }else{
+                _ard("删除成功","OK");
+            }
+        }
+
+
     }

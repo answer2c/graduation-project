@@ -86,12 +86,13 @@
                 {if condition="($book_info['status'] == 1)"}
                 <button class="btn btn-default btn-warning" onclick="block({$book_info['isbn']})">下架</button>
                 {else /}
-                <button class="btn btn-default btn-success" onclick="block({$book_info['isbn']})">恢复</button>
+                <button class="btn btn-default btn-success" onclick="pass{$book_info['isbn']})">审核通过</button>
                 {/if}
             </th>
         </tr>
         {/foreach}
         </tbody>
+        <tfoot></tfoot>
     </table>
 
 </div>
@@ -150,9 +151,55 @@
 
 
 
-<script src="SITE_URL/static/js/test.js"></script>
+<script src="SITE_URL/static/js/myjs1.js"></script>
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+<script>
+    function block(isbn)
+    {
+        var if_block = window.confirm("您确定要下架这本书吗？");
+        if(if_block == true){
+            $.ajax({
+                url:"/book/manage/ajaxBlock",
+                data:{"isbn" : isbn },
+                type: "post",
+                dataType:"json",
+                success:function(result){
+                    alert(result.msg);
+                    if(result.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert("操作失败");
+                }
 
+            })
+        }
+    }
+
+
+
+    function pass(isbn){
+        var if_pass = window.confirm("您确定要审核通过这本书吗？");
+        if(if_pass == true){
+            $.ajax({
+                url:"/book/manage/ajaxPass",
+                type:"post",
+                dataType:"json",
+                data:{"isbn" : isbn},
+                success:function(result){
+                    alert(result.msg);
+                    if(result.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert("操作失败");
+                }
+            })
+        }
+    }
+</script>
 </body>
 </html>

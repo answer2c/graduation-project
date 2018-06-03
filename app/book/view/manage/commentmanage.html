@@ -77,16 +77,16 @@
         </thead>
         <tbody>
         {foreach $comment_infos as $comment_info}
-        <tr>
+        <tr cid="{$comment_info['cid']}">
             <th>{$comment_info['cid']}</th>
             <th>{$comment_info['cname']}</th>
             <th>{$comment_info['content']}</th>
             <th>{$comment_info['ctime']}</th>
             <th>
                 {if condition="($comment_info['status'] == 1)"}
-                <button class="btn btn-default btn-warning" onclick="block({$comment_info['cid']})">删除</button>
+                <button class="btn btn-default btn-warning delete">删除</button>
                 {else /}
-                <button class="btn btn-default btn-success" onclick="recover({$comment_info['cid']})">恢复</button>
+                <button class="btn btn-default btn-success recover">恢复</button>
                 {/if}
             </th>
         </tr>
@@ -99,9 +99,55 @@
 
 
 
-<script src="SITE_URL/static/js/test.js"></script>
+<script src="SITE_URL/static/js/myjs1.js"></script>
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+<script>
+    $(".recover").click(function(){
+        var if_recover = window.confirm("您确认恢复这条评论吗？");
+        if(if_recover == true){
+            var cid = $(this).parent().parent().attr("cid");
+            $.ajax({
+                url:"/book/manage/recoverComment",
+                type : "post",
+                dataType : "json",
+                data : { "cid" : cid},
+                success:function(result){
+                    alert(result.msg);
+                    if(result.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert('操作失败');
+                }
 
+            })
+        }
+    })
+
+    $(".delete").click(function(){
+        var if_delete = window.confirm("您确认删除这条评论吗？");
+        if(if_delete == true){
+            var cid = $(this).parent().parent().attr("cid");
+            $.ajax({
+                url:"/book/manage/deleteComment",
+                type : "post",
+                dataType : "json",
+                data : { "cid" : cid},
+                success:function(result){
+                    alert(result.msg);
+                    if(result.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert('操作失败');
+                }
+
+            })
+        }
+    })
+</script>
 </body>
 </html>

@@ -77,16 +77,16 @@
         </thead>
         <tbody>
         {foreach $user_infos as $user_info}
-        <tr>
+        <tr  username="{$user_info['username']}">
             <th>{$user_info['username']}</th>
             <th>{$user_info['regitime']}</th>
             <th>{$user_info['idnum']}</th>
             <th>{$user_info['address']}</th>
             <th>
                 {if condition="($user_info['status'] == 1)"}
-                <button class="btn btn-default btn-warning" onclick="block({$user_info['username']})">拉黑</button>
+                <button class="btn btn-default btn-warning block">拉黑</button>
                 {else /}
-                <button class="btn btn-default btn-success" onclick="block({$user_info['username']})">恢复</button>
+                <button class="btn btn-default btn-success recover" >恢复</button>
                 {/if}
             </th>
         </tr>
@@ -159,9 +159,62 @@
 
 
 
-<script src="SITE_URL/static/js/test.js"></script>
+<script src="SITE_URL/static/js/myjs1.js"></script>
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+<script>
 
+
+   $(".block").click(function(){
+       var if_block = window.confirm("您确定要拉黑该用户吗？");
+       var username = $(this).parent().parent().attr("username");
+       if (if_block == true){
+           $.ajax({
+               url:"/book/manage/blockUser",
+               type : "post",
+               dataType : "json",
+               data : { "username" : username},
+               success:function(result){
+                   alert(result.msg);
+                   if(result.status == "OK"){
+                       window.location.reload();
+                   }
+               },
+               error:function(){
+                   alert('操作失败');
+               }
+
+           })
+       }
+
+   })
+
+
+    $(".recover").click(function () {
+        var if_recover = window.confirm("您确定要恢复该用户吗？");
+        var username = $(this).parent().parent().attr("username");
+        if (if_recover == true){
+            $.ajax({
+                url:"/book/manage/recoverUser",
+                type : "post",
+                dataType : "json",
+                data : { "username" : username},
+                success:function(result){
+                    alert(result.msg);
+                    if(result.status == "OK"){
+                        window.location.reload();
+                    }
+                },
+                error:function(){
+                    alert('操作失败');
+                }
+
+            })
+        }
+    })
+
+
+
+</script>
 </body>
 </html>

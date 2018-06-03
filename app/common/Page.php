@@ -84,21 +84,46 @@
               $listnum = 4;
               $list = "";
               $list .="<li><a href='".$this->uri.$this->pre()."'><<</a></li>";
-              for($i = $listnum;$i > 0;$i--){
-                  $page = $this->page - $i;
-                  if($page <= 0)continue;
-                 $list .= "<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
-                 
-              }
-              $list .= '<li><a href="#" class="disabled" readonly>'.$this->page.'</a></li>';
 
-              for($i=1;$i<$listnum;$i++){
-                  $page=$this->page+$i;
-                  if($page>$this->pagenum) break;
-                  
-                  $list.="<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
+              $start = $this->page - floor($listnum / 2);
+              $start = $start<1 ? 1 : $start;
+              $end = $this->page + floor($listnum / 2);
+              $end = $end > $this->pagenum ? $this->pagenum : $end;
 
+              $num = $end - $start + 1;
+
+              if ($num < $listnum && $start > 1){
+                  $start = $start  - ($listnum - $num);
+                  $start = $start<1 ? 1 : $start;
+                  $num = $end - $start + 1;
               }
+
+              if ($num < $listnum && $end < $this->pagenum){
+                  $end = $end + ($listnum - $num);
+                  $end = $end>$this->pagenum? $this->pagenum : $end;
+              }
+
+              for($i = $start ; $i < $this->page ; $i ++){
+                  $list .= "<li><a href='{$this->uri}&page=$i'>".$i.'</a></li>';
+              }
+//              for($i = $listnum - 1;$i > 0;$i--){
+//                  $page = $this->page - $i;
+//                  if($page <= 1)continue;
+//                 $list .= "<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
+//
+//              }
+              $list .= '<li><a href="#" class="disabled active btn-primary" readonly>'.$this->page.'</a></li>';
+
+              for($j = $this->page + 1; $j <= $end ; $j++){
+                  $list.="<li><a href='{$this->uri}&page=$j'>".$j.'</a></li>';
+              }
+//              for($i=1; $i<$listnum -1 ;$i++){
+//                  $page=$this->page+$i;
+//                  if($page>$this->pagenum) break;
+//
+//                  $list.="<li><a href='{$this->uri}&page=$page'>".$page.'</a></li>';
+//
+//              }
 
               $list .="<li><a href='".$this->uri.$this->next()."'>>></a></li>";
               return $list;
