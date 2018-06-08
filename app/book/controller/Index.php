@@ -14,13 +14,16 @@
     use app\book\model\Upload;
     use app\book\model\Comment;
     use app\book\model\Tags;
+    use app\book\model\Notice;
     use app\book\model\Booktag;
     use app\common\Page;
 
 
     class Index extends Controller
     {
-        public static $redirect_uri='http://www.answer2c.cn/book/index/callback';
+        public static $redirect_uri = 'http://www.answer2c.cn/book/index/callback';
+        public static $accessKeyId  = 'LTAIk3X6QSiC1yav';
+        public static $accessKeySecret = 'PfYaOr2qPL2Ze3swQ94sTaVgM14fb9';
 
         public function index(){
 
@@ -216,7 +219,11 @@
          * 借书页面
          */
         public function lend(){
-
+                if(Session :: has("openid")){
+                    $usernamt = Session::get('openid');
+                }else{
+                    $username = Session::get('username');
+                }
                 $login = checkUser();
                  $this->assign('loginMess',$login);
                  $this->assign('redirect_uri',self::$redirect_uri);
@@ -252,7 +259,7 @@
                              $isbn_in .= $val['isbn'] . ',';
                          }
                          $isbn_in = rtrim($isbn_in, ',');
-                         $where .= " and isbn in (" . $isbn_in . ")";
+                         $where .= " and book.isbn in (" . $isbn_in . ")";
                      }else{
                           $where .= " and 1=0";
                      }
@@ -260,8 +267,8 @@
 
                  //确定limit条件与页数
                  $limit  = 8;
-                 $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit - 1: 0;
-                 $totalSql = "select count(*) as total from book where 1=1 ".$where;
+                 $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit : 0;
+                 $totalSql = "select count(*) as total from book where status=1 ".$where;
                  $total = Db::query($totalSql);
                  $pages = ceil($total[0]['total'] / $limit);
 
@@ -278,15 +285,72 @@
 
 
                 //搜索所有符合条件的书籍
-                $sql = "select * from book where status=1 ".$where." limit {$offset},{$limit}";
+                $sql = "select distinct upload.isbn,book.* from book,upload where book.status=1 and book.isbn = upload.isbn ".$where." limit {$offset},{$limit}";
 
-              $bookList = Db::query($sql);
+                $bookList = Db::query($sql);
                 $this->assign('total',$total[0]);
                 $this->assign('pages',$pages);
                 $this->assign('bookList',$bookList);
                 return $this->fetch('lend');
 
            
+        }
+
+        function sendSms() {
+
+            $params = array ();
+
+            // *** 需用户填写部分 ***
+
+            // fixme 必填: 请参阅 https://ak-console.aliyun.com/ 取得您的AK信息
+            $accessKeyId = self::$accessKeyId;
+            $accessKeySecret = "your access key secret";
+
+            // fixme 必填: 短信接收号码
+            $params["PhoneNumbers"] = "17000000000";
+
+            // fixme 必填: 短信签名，应严格按"签名名称"填写，请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
+            $params["SignName"] = "短信签名";
+
+            // fixme 必填: 短信模板Code，应严格按"模板CODE"填写, 请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/template
+            $params["TemplateCode"] = "SMS_0000001";
+
+            // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
+            $params['TemplateParam'] = Array (
+                "code" => "12345",
+                "product" => "阿里通信"
+            );
+
+            // fixme 可选: 设置发送短信流水号
+            $params['OutId'] = "12345";
+
+            // fixme 可选: 上行短信扩展码, 扩展码字段控制在7位或以下，无特殊需求用户请忽略此字段
+            $params['SmsUpExtendCode'] = "1234567";
+
+
+            // *** 需用户填写部分结束, 以下代码若无必要无需更改 ***
+            if(!empty($params["TemplateParam"]) && is_array($params["TemplateParam"])) {
+                $params["TemplateParam"] = json_encode($params["TemplateParam"], JSON_UNESCAPED_UNICODE);
+            }
+
+            // 初始化SignatureHelper实例用于设置参数，签名以及发送请求
+            $helper = new SignatureHelper();
+
+            // 此处可能会抛出异常，注意catch
+            $content = $helper->request(
+                $accessKeyId,
+                $accessKeySecret,
+                "dysmsapi.aliyuncs.com",
+                array_merge($params, array(
+                    "RegionId" => "cn-hangzhou",
+                    "Action" => "SendSms",
+                    "Version" => "2017-05-25",
+                ))
+            // fixme 选填: 启用https
+            // ,true
+            );
+
+            return $content;
         }
 
         /**
@@ -320,8 +384,9 @@
             $booktag = explode(' ', $request->post('booktag'));
             $price = substr($request->post('price'), 0, -3);
             $bookimg = $request->post('bookimg');
+            $remark = $request->post('remark');
 
-//           //查看当前书籍信息是否存在
+           //查看当前书籍信息是否存在
             $ifbook = Db::table('book')->where('isbn', $isbn)->select();
             if (!empty($ifbook)) {
                 //图书存在，判断该用户是否上传过该书，若无则更新upload表
@@ -332,9 +397,9 @@
                 }
                 if (empty($ifupload)) {
                     if (Session::has('openid')){
-                        $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0'];
+                        $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0' ,"remark" => $remark];
                     }else{
-                        $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                        $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0' , "remark" => $remark];
                     }
 
                     $ifsuccess = Db::table('upload')->insert($uploaddata);
@@ -356,9 +421,9 @@
                 }
                 //添加上传表数据
                 if(Session::has('openid')){
-                    $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0'];
+                    $uploaddata = ['username' => Session::get('openid'), 'isbn' => $isbn, 'rent' => '0',"remark" => $remark];
                 }else{
-                    $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0'];
+                    $uploaddata = ['username' => Session::get('username'), 'isbn' => $isbn, 'rent' => '0',"remark" => $remark];
                 }
                 $ifupload=Db::table('upload')->insert($uploaddata);
 
@@ -370,7 +435,6 @@
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
                         $dbtag = new Tags;
                         $result = $dbtag->where('tagname',$booktag[$i])->select();
-
 //                        $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
                         if (!empty($result)) {
                             $num = $result[0]['sum'] + 1;
@@ -567,11 +631,17 @@
         {
             $login = checkUser();
             $share_id = $_GET['share_id'];
-            $tel = $_GET['tel'];
+            $username = $_GET['username'];
+
             $book = new Book;
+            $user = new User;
             $upload = new Upload;
             $borrow = new Borrow;
             $borrow_user = Session::get('username');
+
+            $user_info = $user->where("username",$username)->select();
+            $tel = $user_info[0]['tel'];
+            $email = $user_info[0]['email'];
 
             //更新书籍表中的borrow_num字段
             $upload_info = $upload->where("share_id",$share_id)->find();
@@ -595,6 +665,7 @@
             }
 
             $this->assign('tel',$tel);
+            $this->assign('email',$email);
             $this->assign("loginMess",$login);
             return $this->fetch();
         }
@@ -658,9 +729,8 @@
                 $upload = new Upload;
                 $borrow = new Borrow;
                 $book = new Book;
-                $limit = 1;
-                $offset = isset($_GET['page'])? $_GET['page'] * $limit -1 : 0;
-
+                $limit = 3;
+                $offset = (isset($_GET['page']) && $_GET['page']>1 )? ($_GET['page']-1) * $limit : 0;
                 $bookdata = array();
                 $this->assign("view",$view);
                 if ($view == 'islended'){
@@ -671,11 +741,17 @@
                     }
                     $bookdata = $islends;
                 }elseif ($view == 'nolended'){
-                    $nolends =  $upload->where('username',$username)->where("rent",0)->limit($offset,$limit)->select();//未借出的书
-                    $total = $upload->where('username',$username)->where("rent",0)->count();
-                    foreach ($nolends as &$value){
+                    $nolends = array();
+                    $lends =  $upload->where('username',$username)->where("rent",0)->limit($offset,$limit)->select();//未借出的书
+                    foreach ($lends as &$value){
                         $value->bookinfo = $book->where('isbn',$value->isbn)->find();
+                        if($value->bookinfo['status'] == 0){
+                            continue;
+                        }else{
+                            $nolends[] = $value;
+                        }
                     }
+                    $total = count($nolends);
                     $bookdata = $nolends;
                 }
 
@@ -806,6 +882,22 @@
               _ard("修改成功","OK");
           }
       }
+
+      public function notice(){
+          $login = checkUser();
+          $notice = new Notice;
+          if (Session::has('openid')){
+              $username = Session::get('openid');
+          }else{
+              $username = Session::get('username');
+          }
+
+          $this->assign("loginMess",$login);
+          $notices = $notice->where('username',$username)->select();
+          $this->assign("notices",$notices);
+          return $this->fetch();
+      }
+
 
     }
 

@@ -7,6 +7,9 @@
     <title>图书共享网站</title>
     <link rel="stylesheet" href="SITE_URL/static/css/book.css">
     <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+    <link rel="stylesheet" href="SITE_URL/static/css/jquery-ui-1.8.21.custom.css.css">
     <link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
     <style>
         @font-face {
@@ -24,12 +27,15 @@
             overflow-x:hidden;
         }
 
+        #touxiang{
+            height:50px !important;
+        }
+
+
     </style>
 
 </head>
 <body>
-
-
 
 
 <!-- 导航栏 -->
@@ -63,6 +69,7 @@
 </nav>
 <br><br><br><br><br>
 <!-- 导航栏结束 -->
+
 <div class="container">
 
     <table class="table table-striped">
@@ -84,9 +91,13 @@
             <th>{$book_info['publisher']}</th>
             <th>
                 {if condition="($book_info['status'] == 1)"}
-                <button class="btn btn-default btn-warning" onclick="block({$book_info['isbn']})">下架</button>
+                    {if ($book_info['borrowing'] != 1)}
+                        <button class="btn btn-default btn-warning"  data-toggle="modal" data-target=".xiajia" id="xiajia" bookname="{$book_info['bookname']}" bookisbn="{$book_info['isbn']}">下架</button>
+                    {else /}
+                       <button class="btn btn-default btn-warning"  data-toggle="modal" data-target=".xiajia" id="xiajia" bookname="{$book_info['bookname']}" bookisbn="{$book_info['isbn']}" disabled>下架</button>
+                    {/if}
                 {else /}
-                <button class="btn btn-default btn-success" onclick="pass{$book_info['isbn']})">审核通过</button>
+                <button class="btn btn-default btn-success" onclick="pass({$book_info['isbn']})">审核通过</button>
                 {/if}
             </th>
         </tr>
@@ -96,8 +107,6 @@
     </table>
 
 </div>
-
-
 
 
 
@@ -118,7 +127,6 @@
                         <label for="username" class="col-xs-5 col-sm-3 control-label">用户名：</label>
                         <div class="col-xs-8 col-sm-5">
                             <input type="text" id="username" class="form-control" name="username" placeholder='username'>
-
                         </div>
                     </div>
 
@@ -127,19 +135,10 @@
                         <label for="pwd" class="col-xs-5 col-sm-3 control-label">密码：</label>
                         <div class="col-xs-8 col-sm-5">
                             <input type="password" id="pwd" class="form-control" name="pwd" placeholder='password'>
-
                         </div>
                     </div>
 
-
-
-
-
-
                 </div>
-
-
-
             </form>
         </div>
     </div>
@@ -149,19 +148,62 @@
 
 
 
+<div class="modal fade xiajia" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="">下架书籍</h4>
+            </div>
+            <form action="" method="post" class="form-horizontal">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="username" class="col-xs-5 col-sm-3 control-label" >书籍名称：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <input type="text" name="bookname" id="bookname" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                    <input type="hidden" id="bookisbn" >
+                    <div class="form-group">
+                        <label for="username" class="col-xs-5 col-sm-3 control-label">下架原因：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <textarea name="reason" id="reason" cols="50" rows="10" placeholder="请输入下架原因.."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="block()">确认</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script src="SITE_URL/static/js/myjs1.js"></script>
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script>
-    function block(isbn)
+
+
+    $("#xiajia").click(function(){
+        var bookname = $(this).attr("bookname");
+        var bookisbn = $(this).attr("bookisbn");
+        $("#bookname").val(bookname);
+        $("#bookisbn").val(bookisbn);
+    })
+
+    function block()
     {
-        var if_block = window.confirm("您确定要下架这本书吗？");
-        if(if_block == true){
+            var isbn = $("#bookisbn").val();
+            var content = $("#reason").val();
             $.ajax({
                 url:"/book/manage/ajaxBlock",
-                data:{"isbn" : isbn },
+                data:{"isbn" : isbn,
+                      "content" : content
+                },
                 type: "post",
                 dataType:"json",
                 success:function(result){
@@ -175,7 +217,7 @@
                 }
 
             })
-        }
+
     }
 
 

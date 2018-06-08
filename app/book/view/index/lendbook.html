@@ -109,16 +109,18 @@
                 <th>上传者</th>
                 <th>上传时间</th>
                 <th>所在位置</th>
+                <th>备注</th>
                 <th>操作</th>
             </tr>
         </thead>
         <tbody>
             {foreach $upload_infos as $upload_info}
-            <tr>
+            <tr username="{$upload_info['username']}" share_id="{$upload_info['share_id']}">
                 <th>{$upload_info['username']}</th>
                 <th>{$upload_info['upload_time']}</th>
                 <th>{$upload_info['user_info']['address']}</th>
-                <th><button class="btn btn-default btn-success" onclick="lend({$upload_info['share_id']},{$upload_info['user_info']['tel']})">向TA借阅</button></th>
+                <th>{$upload_info['remark']}</th>
+                <th><button class="btn btn-default btn-success re" >向TA借阅</button></th>
             </tr>
             {/foreach}
         </tbody>
@@ -131,24 +133,22 @@
 </div>
 
 
-
-
-
-
-
-
+<script src="SITE_URL/static/js/myjs1.js"></script>
 <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
 <script src="SITE_URL/static/js/bootstrap.min.js"></script>
 <script src="SITE_URL/static/js/upload.js"></script>
 <script>
-function lend(share_id,tel){
-    var iflend = window.confirm("确定向TA借这本书吗?");
-    if(iflend == true){
-        window.location.href="/book/index/lendconfirm?share_id="+share_id+"&tel="+tel;
-    }else{
-        return false;
-    }
-}
+    $(".re").click(function(){
+        var username = $(this).parent().parent().attr("username");
+        var share_id = $(this).parent().parent().attr("share_id");
+        var iflend = window.confirm("确定向TA借这本书吗?");
+        if(iflend == true){
+            window.location.href="/book/index/lendconfirm?share_id="+share_id+"&username="+username;
+        }else{
+            return false;
+        }
+    })
+
 
 </script>
 </body>

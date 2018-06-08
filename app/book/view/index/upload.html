@@ -147,6 +147,12 @@
                     </div>                 
             </div>
             <div class="form-group">
+                <label for="price" class="col-xs-5 col-sm-3 control-label" >备注：</label>
+                <div class="col-xs-8 col-sm-5">
+                    <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="请输入您借出本书的要求（如押金、时间等..）"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-md-offset-4 col-sm-2 col-xs-3">
                 <input type="button" name="sub2" value="上传" id="sub2" class="btn btn-success" >
                 </div>
@@ -224,7 +230,8 @@
         var pubdate = $("#pubdate").val();
         var booktag = $("#booktag").val();
         var price = $("#price").val();
-        var data="&isbn="+isbn+"&bookimg="+bookimg+"&bookname="+bookname+"&author="+author+"&publisher="+publisher+"&pubdate="+pubdate+"&booktag="+booktag+"&price="+price;
+        var remark = $("#remark").val();
+        var data="&isbn="+isbn+"&bookimg="+bookimg+"&bookname="+bookname+"&author="+author+"&publisher="+publisher+"&pubdate="+pubdate+"&booktag="+booktag+"&price="+price+"&remark="+remark;
 
             $.ajax({
             type:"post",
@@ -237,8 +244,8 @@
                     alert(result.msg);
                     window.location='/book/index/'
                 }else{
-                    alert(result.msg);
-                    // console.log(result.msg);
+                    // alert(result.msg);
+                    console.log(result.msg);
                 }
             },
             error:function(result){

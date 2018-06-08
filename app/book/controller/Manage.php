@@ -8,8 +8,10 @@
     use app\book\model\Book;
     use app\book\model\Borrow;
     use app\book\model\User;
-    use app\common\Page;
     use app\book\model\Comment;
+    use app\book\model\Notice;
+    use app\book\model\Upload;
+    use app\common\Page;
 
     class Manage extends Controller
     {
@@ -50,6 +52,22 @@
             $login = checkUser();
             $book = new Book;
             $book_infos = $book->select();
+            foreach ($book_infos as &$value){
+                $upload = new Upload;
+                $upload_infos = $upload->where("isbn",$value['isbn'])->select();
+                foreach ($upload_infos as $v){
+                    $borrow = new Borrow;
+                    $borrow_num = $borrow->where("share_id",$v['share_id'])->count();
+                    if ($borrow_num > 0){
+                        $value['borrowing'] = 1;
+                    }else{
+                        $value['borrowing'] = 0;
+
+                    }
+                }
+            }
+
+
             $total = $book->count();
             $pages = ceil($total / $limit);
             $page = new Page($pages);
@@ -88,6 +106,15 @@
         public function ajaxBlock(Request $request)
         {
             $isbn = $request->post('isbn');
+            $content = $request->post('content');
+            $upload = new Upload;
+            $users = $upload->where("isbn",$isbn)->select();
+            foreach($users as $user){
+                $notice = new Notice;
+                $notice->username = $user->username;
+                $notice->content = "抱歉，您上传的书籍被下架，下架原因：".$content;
+                $notice->save();
+            }
             $book = new Book;
             $result = $book->save(["status" => 0],['isbn' => $isbn]);
             if($result < 1 ){
@@ -156,6 +183,12 @@
             }else{
                 _ard("删除成功","OK");
             }
+        }
+
+
+        public function blockremark()
+        {
+            return $this->fetch();
         }
 
 
