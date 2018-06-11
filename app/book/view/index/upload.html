@@ -41,9 +41,9 @@
                         <ul class="nav navbar-nav navbar-left">
                             <li><a href="{:url('/book')}">首页</a></li>
                             <li><a href="{:url('/book/index/lend')}">借书</a></li>
-                            <li><a href="{:url('/book/index/returnbook')}">还书</a></li>
-                            <li><a href="{:url('/book/index/mybook/view/nolended')}">我的书籍</a></li>
-                            <li class="active"><a href="{:url('/book/index/upload')}">上传书籍</a></li>
+                            <li><a href="javascript:void(0)" onclick="checklogin('returnbook')">还书</a></li>
+                            <li><a href="javascript:void(0)" onclick="checklogin('mybook/view/nolended')">我的书籍</a></li>
+                            <li class="active"><a href="javascript:void(0)" onclick="checklogin('upload')">上传书籍</a></li>
                             <li class="dropdown" >
                                 <a href="http://" data-toggle="dropdown" class="dropdown-toggle" >帮助
                                     <span class="caret"></span>
@@ -255,5 +255,26 @@
         })
     })
     </script>
+        <script>
+            function checklogin(location)
+            {
+                $.ajax({
+                    url:"/book/index/loginCheck",
+                    type:"get",
+                    dataType:"json",
+                    success:function(result){
+                        if(result.status == "ERR"){
+                            alert(result.msg);
+                        }else{
+                            window.location.href = "/book/index/"+location;
+                        }
+                    },
+                    error:function(){
+
+                    }
+                })
+            }
+
+        </script>
 </body>
 </html>

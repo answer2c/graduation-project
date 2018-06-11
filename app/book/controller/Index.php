@@ -220,10 +220,27 @@
          */
         public function lend(){
                 if(Session :: has("openid")){
-                    $usernamt = Session::get('openid');
+                    $username = Session::get('openid');
                 }else{
                     $username = Session::get('username');
                 }
+
+                $not_isbn = "";
+                if (isset($username)){
+                    $upload = new Upload;
+                    $isbns = $upload->where("username",$username)->select();
+                    $own_isbns = "(";
+                    foreach ($isbns as $value){
+                        $own_isbns .= $value->isbn.",";
+                    }
+                    $own_isbns = substr($own_isbns,0,-1);
+
+                    $own_isbns .=")";
+                    $not_isbn .=" and book.isbn not in ".$own_isbns;
+                }
+
+
+
                 $login = checkUser();
                  $this->assign('loginMess',$login);
                  $this->assign('redirect_uri',self::$redirect_uri);
@@ -241,6 +258,7 @@
                  if (isset($_GET['book'])){
                      $where.="and isbn = '".$_GET['book']."' or bookname  like '%".$_GET['book']."%' or author like '%".$_GET['book']."%'";
                  }
+
                  if(isset($_GET['tag'])){
                      $current_tag = $tags->where('number',$_GET['tag'])->select()[0];
                      $current_tagname = $current_tag['tagname'];
@@ -268,9 +286,11 @@
                  //确定limit条件与页数
                  $limit  = 8;
                  $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit : 0;
-                 $totalSql = "select count(*) as total from book where status=1 ".$where;
-                 $total = Db::query($totalSql);
-                 $pages = ceil($total[0]['total'] / $limit);
+//                 $totalSql = "select count(*) as total from book where status=1 ".$where." and isbn";
+                 $totalSql = "select count(*) as total from book,upload where book.status=1 and book.isbn = upload.isbn ".$where.$not_isbn;
+            $total = Db::query($totalSql);
+
+            $pages = ceil($total[0]['total'] / $limit);
 
                 $tpage = new Page($pages);
                 $pagelist = $tpage->pagelist();
@@ -285,7 +305,7 @@
 
 
                 //搜索所有符合条件的书籍
-                $sql = "select distinct upload.isbn,book.* from book,upload where book.status=1 and book.isbn = upload.isbn ".$where." limit {$offset},{$limit}";
+                $sql = "select distinct upload.isbn,book.* from book,upload where book.status=1 and book.isbn = upload.isbn ".$where.$not_isbn." limit {$offset},{$limit}";
 
                 $bookList = Db::query($sql);
                 $this->assign('total',$total[0]);
@@ -674,7 +694,7 @@
       /**
        * 图书详情
        */
-      public function bookdetail()
+        public function bookdetail()
       {
           $this->assign("redirect_uri",self::$redirect_uri);
           $login = checkUser();
@@ -893,11 +913,25 @@
           }
 
           $this->assign("loginMess",$login);
-          $notices = $notice->where('username',$username)->select();
+          $notices = $notice->where('username',$username)->order("createtime",'desc')->select();
           $this->assign("notices",$notices);
+
+          $notice->save(['is_read'=> 1],["username"=>$username]);
           return $this->fetch();
       }
 
+
+      /**
+       * 检查登录状态
+       */
+      public function loginCheck()
+      {
+          if (Session::has('username')){
+              _ard("","OK");
+          }else{
+              _ard("请先登录","ERR");
+          }
+      }
 
     }
 

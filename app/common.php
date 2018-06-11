@@ -1,6 +1,7 @@
 <?php
 
 use \think\Session;
+use  \app\book\model\Notice;
 // 应用公共文件
 /**
 //         * 检查是否登录
@@ -23,7 +24,20 @@ use \think\Session;
 
 
                     if(Session::get("authority") == 1){
-                        $login .= ' <li class="divider"></li> <li><a href="/book/index/notice">通知消息</a></li>';
+                        if (Session::has('openid')){
+                            $username = Session::get('openid');
+                        }else{
+                            $username = Session::get('username');
+                        }
+
+                        $notice = new Notice;
+                        $notice_num = $notice->where('is_read',0)->count();
+                        if ($notice_num > 0 ){
+                            $login .= ' <li class="divider"></li> <li><a href="/book/index/notice">通知消息 &nbsp;<span class="badge notice_badge" style="background-color:red">'.$notice_num.'</span></a></li>';
+                        }else{
+                            $login .= ' <li class="divider"></li> <li><a href="/book/index/notice">通知消息 &nbsp;</a></li>';
+                        }
+                        
                     }
                     $login .= '</ul>
                             </li>
