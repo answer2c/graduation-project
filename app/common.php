@@ -8,7 +8,7 @@ use  \app\book\model\Notice;
 //         */
     function checkUser(){
             if(Session::has('username')){
-                    $login='<li class="dropdown" >
+                    $login='<li class="dropdown userbtn" >
                                 <a href="" data-toggle="dropdown" class="dropdown-toggle" id="touxiang">';
                     if (Session::has('ouruser')){
                         $login .= ' <img src="http://www.answer2c.cn/'.Session::get("touxiang").'" >'.Session::get("username").'</a>

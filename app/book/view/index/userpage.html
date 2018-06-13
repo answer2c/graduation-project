@@ -22,6 +22,10 @@
             font-size:25px !important;
            
         }
+
+       #touxiang{
+           height:50px;
+       }
     </style>
   
 </head>
@@ -81,7 +85,7 @@
  <div class="container">
      <br><br>
      <form action="/book/index/adduser" method="post" class="form-horizontal" id="myform">
-         <input type="hidden" value="{if (isset($openid))}{$openid}{else / }$username  {/if}" id="user">
+         <input type="hidden" value="{if (isset($openid))}{$openid}{else / }{$username}  {/if}" id="user">
          <div class="row">
              <h4>用户名：{$username}</h4>
          </div>
@@ -101,10 +105,18 @@
              <h4> 地址：<input type="text" value="{$address}" class="form-control" id="address"></h4>
              <span id="address_tip" style="color:red" class="tip"></span>
          </div>
-
-
+         <div class="row" id="changepwd" style="display: none;">
+             <h4> 旧密码：<input type="password" value="" class="form-control" id="oldpwd"></h4>
+             <span  style="color:red" class="tip" id="oldpwd_tip"></span>
+             <h4> 新密码：<input type="password" value="" class="form-control" id="newpwd"></h4>
+             <span id="newpwd_tip" style="color:red" class="tip"></span>
+         </div>
+         <div class="row">
+            <a href="javascript:void(0)" onclick="changepwd()">修改密码</a>
+         </div>
+         <br>
             <div class="row">
-                <input type="button" value="确认修改" id="usersub" class="btn btn-default btn-success" onclick="change()">
+                <input type="button" value="提交修改" id="usersub" class="btn btn-default btn-success" onclick="change()">
             </div>
 
      </form>
@@ -113,9 +125,11 @@
     
 </div>
 
+        <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
+        <script src="SITE_URL/static/js/bootstrap.min.js"></script>
         <script src="SITE_URL/static/js/myjs1.js"></script>
-    <script src="SITE_URL/static/js/jquery-3.2.1.js"></script>
-    <script src="SITE_URL/static/js/bootstrap.min.js"></script>
+
+
         <script>
             $("#email").blur(function(){
                 //验证邮箱
@@ -139,41 +153,96 @@
             })
 
 
+            $("#oldpwd").blur(function(){
+                var username = $("#user").val();
+                var newpwd = $("#newpwd").val();
+                var oldpwd = $("#oldpwd").val();
+                $.ajax({
+                    url:"/book/index/checkpwd",
+                    type: "post",
+                    dataType:"json",
+                    data:{"oldpwd": oldpwd,
+                        "username" : username
+                    },
+                    success:function(result){
+                        if(result.status == "ERR"){
+                            $("#oldpwd_tip").html("旧密码不正确!");
+                        }else{
+                            $("#oldpwd_tip").html("");
+                        }
+                    },
+                    error:function(){
+                        $("#oldpwd_tip").html("旧密码不正确!");
+
+                    },
+                })
+
+            })
            function change() {
-               $(".tip").each(function () {
-                   if ($(this).html() != "") {
-                       return false;
-                   }
-               })
+               var tag = 1;
 
-
+               var newpwd = $("#newpwd").val();
+               var oldpwd = $("#oldpwd").val();
+               var pwd = "";
                var tel = $("#tel").val();
                var address = $("#address").val();
                var email = $("#email").val();
                var username = $("#user").val();
 
 
-               $.ajax({
-                   url: "/book/index/changeinfo?username="+username,
-                   type: "post",
-                   dataType: "json",
-                   data: {
-                       "tel": tel,
-                       "email": email,
-                       "address": address
-                   },
-                   success: function (data) {
-                       if(data.status == "OK"){
-                           alert(data.msg);
-                           window.location.reload();
-                       }
-                   },
-                   error: function () {
-                       alert("操作失败");
+               if(newpwd != ""){
+                   if(oldpwd == ""){
+                       alert("请输入旧密码");
+                       tag = 0;
                    }
 
+                   if(newpwd.length<6){
+                       $("#newpwd_tip").html("密码长度不能低于6");
+                       tag = 0;
+                   }else{
+                       $("#newpwd_tip").html("");
+                       pwd = newpwd;
+                   }
+               }
+
+
+               $(".tip").each(function () {
+                   if ($(this).html() != "") {
+                       tag = 0;
+                   }
                })
 
+
+               if(tag != 0){
+                   $.ajax({
+                       url: "/book/index/changeinfo?username="+username,
+                       type: "post",
+                       dataType: "json",
+                       data: {
+                           "tel": tel,
+                           "email": email,
+                           "address": address,
+                           "pwd" : pwd
+                       },
+                       success: function (data) {
+                           alert(data.msg);
+                           if(data.status == "OK"){
+                               window.location.reload();
+                           }
+                       },
+                       error: function (result) {
+                           alert("操作失败");
+                           // console.log(result);
+                       }
+
+                   })
+
+               }
+
+           }
+
+           function changepwd(){
+                $("#changepwd").css("display","block");
            }
         </script>
         <script>

@@ -16,7 +16,9 @@
     height:150px !important;
     }
 
-
+        #touxiang{
+            height:50px;
+        }
     </style>
 </head>
 <body>
@@ -206,7 +208,7 @@
                 $("#author").val(result.author);
                 $("#price").val(result.price);
                 var tags="";
-                for(var i = 0;i < 4;i++){
+                for(var i = 0;i < 5;i++){
                     tags+=result.tags[i].name;
                     tags+=" ";
                 }
@@ -244,8 +246,8 @@
                     alert(result.msg);
                     window.location='/book/index/'
                 }else{
-                    // alert(result.msg);
-                    console.log(result.msg);
+                    alert(result.msg);
+                    // console.log(result.msg);
                 }
             },
             error:function(result){

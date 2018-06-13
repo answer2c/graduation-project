@@ -230,15 +230,23 @@
                     $upload = new Upload;
                     $isbns = $upload->where("username",$username)->select();
                     $own_isbns = "(";
-                    foreach ($isbns as $value){
-                        $own_isbns .= $value->isbn.",";
+
+
+
+                    if (!empty($isbns)){
+                        foreach ($isbns as $value){
+                            $own_isbns .= $value->isbn.",";
+                        }
+                        $own_isbns = substr($own_isbns,0,-1);
+                    }else{
+                        $own_isbns.="''";
                     }
-                    $own_isbns = substr($own_isbns,0,-1);
+
 
                     $own_isbns .=")";
+
                     $not_isbn .=" and book.isbn not in ".$own_isbns;
                 }
-
 
 
                 $login = checkUser();
@@ -252,14 +260,17 @@
 
 
                  $this->assign('tags',$parent_tags);
+
+
                  $where = '';
 
                  //确定where条件
                  if (isset($_GET['book'])){
-                     $where.="and isbn = '".$_GET['book']."' or bookname  like '%".$_GET['book']."%' or author like '%".$_GET['book']."%'";
+                     $where.="and (book.isbn = '".$_GET['book']."' or book.bookname  like '%".$_GET['book']."%' or author like '%".$_GET['book']."%')";
                  }
 
                  if(isset($_GET['tag'])){
+
                      $current_tag = $tags->where('number',$_GET['tag'])->select()[0];
                      $current_tagname = $current_tag['tagname'];
                      if($current_tag['parent_no'] != 0){
@@ -283,13 +294,14 @@
                      }
                  }
 
+
                  //确定limit条件与页数
                  $limit  = 8;
                  $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit : 0;
 //                 $totalSql = "select count(*) as total from book where status=1 ".$where." and isbn";
-                 $totalSql = "select count(*) as total from book,upload where book.status=1 and book.isbn = upload.isbn ".$where.$not_isbn;
-            $total = Db::query($totalSql);
+                 $totalSql = "select count(distinct book.isbn) as total from book,upload where book.status=1 and book.isbn = upload.isbn and upload.rent=0 ".$where.$not_isbn;
 
+            $total = Db::query($totalSql);
             $pages = ceil($total[0]['total'] / $limit);
 
                 $tpage = new Page($pages);
@@ -305,7 +317,7 @@
 
 
                 //搜索所有符合条件的书籍
-                $sql = "select distinct upload.isbn,book.* from book,upload where book.status=1 and book.isbn = upload.isbn ".$where.$not_isbn." limit {$offset},{$limit}";
+                $sql = "select distinct upload.isbn,book.* from book,upload where book.status=1 and book.isbn = upload.isbn and upload.rent = 0 ".$where.$not_isbn." limit {$offset},{$limit}";
 
                 $bookList = Db::query($sql);
                 $this->assign('total',$total[0]);
@@ -316,62 +328,62 @@
            
         }
 
-        function sendSms() {
-
-            $params = array ();
-
-            // *** 需用户填写部分 ***
-
-            // fixme 必填: 请参阅 https://ak-console.aliyun.com/ 取得您的AK信息
-            $accessKeyId = self::$accessKeyId;
-            $accessKeySecret = "your access key secret";
-
-            // fixme 必填: 短信接收号码
-            $params["PhoneNumbers"] = "17000000000";
-
-            // fixme 必填: 短信签名，应严格按"签名名称"填写，请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
-            $params["SignName"] = "短信签名";
-
-            // fixme 必填: 短信模板Code，应严格按"模板CODE"填写, 请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/template
-            $params["TemplateCode"] = "SMS_0000001";
-
-            // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
-            $params['TemplateParam'] = Array (
-                "code" => "12345",
-                "product" => "阿里通信"
-            );
-
-            // fixme 可选: 设置发送短信流水号
-            $params['OutId'] = "12345";
-
-            // fixme 可选: 上行短信扩展码, 扩展码字段控制在7位或以下，无特殊需求用户请忽略此字段
-            $params['SmsUpExtendCode'] = "1234567";
-
-
-            // *** 需用户填写部分结束, 以下代码若无必要无需更改 ***
-            if(!empty($params["TemplateParam"]) && is_array($params["TemplateParam"])) {
-                $params["TemplateParam"] = json_encode($params["TemplateParam"], JSON_UNESCAPED_UNICODE);
-            }
-
-            // 初始化SignatureHelper实例用于设置参数，签名以及发送请求
-            $helper = new SignatureHelper();
-
-            // 此处可能会抛出异常，注意catch
-            $content = $helper->request(
-                $accessKeyId,
-                $accessKeySecret,
-                "dysmsapi.aliyuncs.com",
-                array_merge($params, array(
-                    "RegionId" => "cn-hangzhou",
-                    "Action" => "SendSms",
-                    "Version" => "2017-05-25",
-                ))
-            // fixme 选填: 启用https
-            // ,true
-            );
-
-            return $content;
-        }
+//        function sendSms() {
+//
+//            $params = array ();
+//
+//            // *** 需用户填写部分 ***
+//
+//            // fixme 必填: 请参阅 https://ak-console.aliyun.com/ 取得您的AK信息
+//            $accessKeyId = self::$accessKeyId;
+//            $accessKeySecret = "your access key secret";
+//
+//            // fixme 必填: 短信接收号码
+//            $params["PhoneNumbers"] = "17000000000";
+//
+//            // fixme 必填: 短信签名，应严格按"签名名称"填写，请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
+//            $params["SignName"] = "短信签名";
+//
+//            // fixme 必填: 短信模板Code，应严格按"模板CODE"填写, 请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/template
+//            $params["TemplateCode"] = "SMS_0000001";
+//
+//            // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
+//            $params['TemplateParam'] = Array (
+//                "code" => "12345",
+//                "product" => "阿里通信"
+//            );
+//
+//            // fixme 可选: 设置发送短信流水号
+//            $params['OutId'] = "12345";
+//
+//            // fixme 可选: 上行短信扩展码, 扩展码字段控制在7位或以下，无特殊需求用户请忽略此字段
+//            $params['SmsUpExtendCode'] = "1234567";
+//
+//
+//            // *** 需用户填写部分结束, 以下代码若无必要无需更改 ***
+//            if(!empty($params["TemplateParam"]) && is_array($params["TemplateParam"])) {
+//                $params["TemplateParam"] = json_encode($params["TemplateParam"], JSON_UNESCAPED_UNICODE);
+//            }
+//
+//            // 初始化SignatureHelper实例用于设置参数，签名以及发送请求
+//            $helper = new SignatureHelper();
+//
+//            // 此处可能会抛出异常，注意catch
+//            $content = $helper->request(
+//                $accessKeyId,
+//                $accessKeySecret,
+//                "dysmsapi.aliyuncs.com",
+//                array_merge($params, array(
+//                    "RegionId" => "cn-hangzhou",
+//                    "Action" => "SendSms",
+//                    "Version" => "2017-05-25",
+//                ))
+//            // fixme 选填: 启用https
+//            // ,true
+//            );
+//
+//            return $content;
+//        }
 
         /**
          * 上传书籍页面
@@ -402,7 +414,12 @@
             $publisher = $request->post('publisher');
             $pubdate = $request->post('pubdate');
             $booktag = explode(' ', $request->post('booktag'));
-            $price = substr($request->post('price'), 0, -3);
+
+//            $price = substr($request->post('price'), 0, -3);
+            $patterns = "/\d+\.{1}\d+/"; //筛选出价格数字
+            preg_match_all($patterns,$request->post('price'),$arr);
+            $price = $arr[0][0];
+
             $bookimg = $request->post('bookimg');
             $remark = $request->post('remark');
 
@@ -450,32 +467,46 @@
                 if($ifupload != 1) {
                     _ard("上传失败",0);
                 }
-
+                $psave_tag = 0;
                 //遍历图书的标签，查看该图书的标签在tags表中是否存在，若存在，则对应标签数量加1
                     for ($i = 0; $i < count($booktag) - 1; $i++) {
+
                         $dbtag = new Tags;
                         $result = $dbtag->where('tagname',$booktag[$i])->select();
 //                        $result = Db::table('tags')->where('tagname', $booktag[$i])->select();
                         if (!empty($result)) {
-                            $num = $result[0]['sum'] + 1;
-                            $utag = new Tags;
-                            $csave = $utag->save(["sum" => $num],["tagname" => $booktag[$i]]);//更新标签的sum
-                            $ptag = $utag->where("number",$result[0]["parent_no"])->select();
+                            //如果不是父标签
+                            if ($result[0]['parent_no'] != 0){
+
+                                $num = $result[0]['sum'] + 1;
+                                $utag = new Tags;
+                                $csave = $utag->save(["sum" => $num],["tagname" => $booktag[$i]]);//更新标签的sum
+
+                                $ptag = $utag->where("number",$result[0]["parent_no"])->select();
+
+                                $psum = $ptag[0]->sum + 1;
+
+                                if ($psave_tag == 0){
+                                    $parent_tag = new Tags;
+                                    $psave = $parent_tag->save(["sum" => $psum],["number" => $result[0]["parent_no"]]);
+                                    if($psave > 0 ){
+                                        $psave_tag=1;
+                                    }
+                                }
 
 
-                            $psum = $ptag[0]->sum + 1;
-                            $psave = $utag->save(["sum" => $psum],["number" => $result[0]["parent_no"]]);
-
-
-                            if($csave < 1){
-                                _ard("上传失败",0);
+                                if($csave < 1){
+                                    _ard("上传失败",0);
+                                }
+                                $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
+                                $ifsuccess = Db::table('booktag')->insert($booktagdata);
+                                if ($ifsuccess < 1) {
+                                    _ard("上传失败",0);
+                                }
+                                $iftag = 1;
                             }
-                            $booktagdata = ['isbn' => $isbn, 'tagnumber' => $result[0]['number']];
-                            $ifsuccess = Db::table('booktag')->insert($booktagdata);
-                            if ($ifsuccess < 1) {
-                                _ard("上传失败",0);
-                            }
-                            $iftag = 1;
+
+//                            _ard($psave,0);
                         }
                     }
 
@@ -484,14 +515,14 @@
                         $result = Db::table('tags')->where('number',66)->select();
                         $num = $result[0]['sum'] + 1;
                        //更新其它标签的sum
-                       $if_update =Db::query("update tags set sum =".$num." where number = 48");
+                       $if_update =Db::query("update tags set sum =".$num." where number = 66");
                        if($if_update === false){
-                           _ard("上传失败3",0);
+                           _ard("上传失败",0);
                        }
                         $booktagdata=['isbn'=>$isbn,'tagnumber'=>$result[0]['number']];
                         $ifsuccess=Db::table('booktag')->insert($booktagdata);
                         if($ifsuccess < 1){
-                            _ard("上传失败4",0);
+                            _ard("上传失败",0);
                         }else {
                             _ard("上传成功",1);
                         }
@@ -749,8 +780,8 @@
                 $upload = new Upload;
                 $borrow = new Borrow;
                 $book = new Book;
-                $limit = 3;
-                $offset = (isset($_GET['page']) && $_GET['page']>1 )? ($_GET['page']-1) * $limit : 0;
+                $limit = 8;
+                $offset = (isset($_GET['page']) && $_GET['page'] > 1)? ($_GET['page']-1) * $limit : 0;
                 $bookdata = array();
                 $this->assign("view",$view);
                 if ($view == 'islended'){
@@ -762,25 +793,39 @@
                     $bookdata = $islends;
                 }elseif ($view == 'nolended'){
                     $nolends = array();
+
                     $lends =  $upload->where('username',$username)->where("rent",0)->limit($offset,$limit)->select();//未借出的书
                     foreach ($lends as &$value){
                         $value->bookinfo = $book->where('isbn',$value->isbn)->find();
-                        if($value->bookinfo['status'] == 0){
-                            continue;
-                        }else{
-                            $nolends[] = $value;
-                        }
+                        $nolends[] = $value;
+//                        if($value->bookinfo['status'] == 0){
+//                            $nolends_check[] = $value;
+//                        }else{
+//                            $nolends[] = $value;
+//                        }
+
                     }
-                    $total = count($nolends);
+                    $total = $upload->where('username',$username)->where("rent",0)->count();
                     $bookdata = $nolends;
                 }
 
+//                var_dump($total);exit;
+
                 $this->assign('username',$username);
                 $this->assign('bookdata',$bookdata);
+
+
+//                $pages = ceil($total[0]['total'] / $limit);
+//
+//                $tpage = new Page($pages);
+//                $pagelist = $tpage->pagelist();
+
+
                 $pages = ceil($total / $limit);
                 $tpage = new Page($pages);
                 $pagelist = $tpage->pagelist();
                 $this->assign("pagelist",$pagelist);
+
                 $this->assign('total',$total);
 
                 $this->assign("pagelist",$pagelist);
@@ -806,9 +851,20 @@
             $result = $upload->where("isbn",$isbn)->where("username",$username)->where("rent",0)->delete();
 
             $tags = $booktag->where('isbn',$isbn)->select();
+            $p_tag = 0;
             foreach ($tags as $tag){
                 $dbtag->where('number',$tag['tagnumber'])->setDec('sum');
+                //更新父标签的sum值
+                $parent_tag = new Tags;
+
+                $parent_no = $parent_tag->where('number',$tag['tagnumber'])->find()['parent_no'];
+
+                if ($parent_no != 0 && $p_tag == 0){
+                    $parent_tag->where('number',$parent_no)->setDec('sum');
+                    $p_tag = 1;
+                }
             }
+
             //查看当前该书籍还是否有人在上传
             $num = $upload->where("isbn",$isbn)->count();
             if($num == 0){
@@ -896,11 +952,26 @@
           $tel = $request->post("tel");
           $address = $request->post("address");
           $email = $request->post("email");
+          $pwd = $request->post('pwd');
           $user = new User;
-          $update = $user->save(["tel" => $tel, "email" => $email , "address" => $address],["username" => $username]);
+
+          if($pwd != ""){
+              $pwd = md5($pwd);
+              $update = $user->save(["tel" => $tel, "email" => $email , "address" => $address,"passwd" => $pwd],["username" => $username]);
+          }else{
+              $update = $user->save(["tel" => $tel, "email" => $email , "address" => $address],["username" => $username]);
+          }
+
+
+          if ($update == 0){
+              _ard("未修改数据","ERR");
+          }
           if ($update > 0){
               _ard("修改成功","OK");
           }
+
+
+
       }
 
       public function notice(){
@@ -932,6 +1003,66 @@
               _ard("请先登录","ERR");
           }
       }
+
+
+
+      public function checkemail(Request $request)
+      {
+          $email = $request->post('email');
+          $user = new User;
+          $num = $user->where("email",$email)->count();
+          if($num > 0){
+              _ard("该邮箱已被注册","ERR");
+          }
+      }
+
+        public function checkphone(Request $request)
+        {
+            $tel = $request->post('tel');
+            $user = new User;
+            $num = $user->where("tel",$tel)->count();
+            if($num > 0){
+                _ard("该手机号已被注册","ERR");
+            }
+        }
+
+
+        public function checkidnum(Request $request)
+        {
+            $idnum = $request->post('idnum');
+            $user = new User;
+            $num = $user->where("idnum",$idnum)->count();
+            if($num > 0){
+                _ard("该证件号码已被注册","ERR");
+            }
+        }
+
+
+        public function checkpwd(Request $request)
+        {
+            $username = $request->post("username");
+            $oldpwd = $request->post("oldpwd");
+            $pwd = md5($oldpwd);
+            $user =  new User;
+            $result = $user->where("username",$username)->where("passwd",$pwd)->count();
+            if ($result < 1){
+                _ard("密码不正确","ERR");
+            }else{
+                _ard("yes","OK");
+            }
+
+        }
+
+        public function test()
+        {
+            $patterns = "/\d+\.{1}\d+/"; //第一种
+            $strs="20.01元1";
+            preg_match_all($patterns,$strs,$arr);
+            print_r($arr);
+
+        }
+
+
 
     }
 

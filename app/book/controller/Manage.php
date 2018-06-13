@@ -1,4 +1,4 @@
- <?php
+<?php
     namespace app\book\controller;
     use \think\Controller;
     use \think\Session;
@@ -11,6 +11,7 @@
     use app\book\model\Comment;
     use app\book\model\Notice;
     use app\book\model\Upload;
+    use app\book\model\Tags;
     use app\common\Page;
 
     class Manage extends Controller
@@ -29,13 +30,45 @@
             $user = new User;
             $book = new Book;
             $borrow = new Borrow;
+            $comment = new Comment;
+            $upload = new Upload;
+            $tag = new Tags;
+
             $user_num = $user->count();
             $book_num = $book->count();
+            $comment_num = $comment->count();
             $borrow_num = $borrow->count();
+            $upload_num = $upload->count();
 
+            $wenxue_num = $tag->where('number',2)->find()->sum;
+            $life_num = $tag->where('number',38)->find()->sum;
+            $tech_num = $tag->where('number',46)->find()->sum;
+            $liuxing_num = $tag->where('number',63)->find()->sum;
+            $wenhua_num = $tag->where('number',64)->find()->sum;
+            $jingguan_num = $tag->where('number',65)->find()->sum;
+            $qita_num = $tag->where('number',66)->find()->sum;
+
+
+
+            $this->assign('commentnum',$comment_num);
+            $this->assign('uploadnum',$upload_num );
             $this->assign('booknum',$book_num);
             $this->assign('usernum',$user_num);
             $this->assign('borrownum',$borrow_num);
+
+            $this->assign('wenxue_num',$wenxue_num);
+            $this->assign('life_num',$life_num);
+            $this->assign('tech_num',$tech_num);
+            $this->assign('liuxing_num',$liuxing_num);
+            $this->assign('wenhua_num',$wenhua_num);
+            $this->assign('jingguan_num',$jingguan_num);
+            $this->assign('qita_num',$qita_num );
+
+
+
+
+
+
 
             return $this->fetch();
 
@@ -85,6 +118,9 @@
             $login = checkUser();
             $user = new User;
             $user_infos = $user->select();
+            foreach ($user_infos as &$value){
+                $value['regitime'] = date('Y-m-d H:i:s',$value['regitime']);
+            }
 
             $this->assign('loginMess',$login);
             $this->assign("user_infos",$user_infos);

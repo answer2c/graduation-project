@@ -9,13 +9,7 @@
     <link rel="stylesheet" href="SITE_URL/static/css/bootstrap.css">
     <link rel="shortcut icon" type="image/x-icon" href="SITE_URL/static/image/ic.png">
     <style>
-        @font-face {
-            font-family: 'Glyphicons Halflings';
 
-            src: url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.eot');
-            src: url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg'),
-            url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.woff2') format('woff2'),url('http://www.answer2c.cn/static/fonts/glyphicons-halflings-regular.woff') format('woff');
-        }
         .showbook{
             width:100px;
             height:200px;
@@ -77,8 +71,8 @@
         </thead>
         <tbody>
         {foreach $user_infos as $user_info}
-        <tr  username="{$user_info['username']}">
-            <th>{$user_info['username']}</th>
+        <tr  username="{$user_info['username']}" tel="{$user_info['tel']}" email="{$user_info['email']}">
+            <th><a href="javascript:void(0)" class="moreinfo" data-toggle="modal" data-target=".userdetail">{$user_info['username']}</a></th>
             <th>{$user_info['regitime']}</th>
             <th>{$user_info['idnum']}</th>
             <th>{$user_info['address']}</th>
@@ -98,7 +92,36 @@
 
 
 
-
+<div class="modal fade userdetail" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="">更多信息</h4>
+            </div>
+            <form action="" method="post" class="form-horizontal">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="usertel" class="col-xs-5 col-sm-3 control-label" >用户联系方式：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <input type="text" name="usertel" id="usertel" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                    <input type="hidden" id="bookisbn" >
+                    <div class="form-group">
+                        <label for="useremail" class="col-xs-5 col-sm-3 control-label">用户电子邮箱：</label>
+                        <div class="col-xs-8 col-sm-5">
+                            <input type="text" name="useremail" id="useremail" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- 登录模块 -->
@@ -214,6 +237,12 @@
     })
 
 
+    $(".moreinfo").click(function(){
+        var tel = $(this).parent().parent().attr("tel");
+        var email = $(this).parent().parent().attr("email");
+        $("#usertel").val(tel);
+        $("#useremail").val(email);
+    })
 
 </script>
 </body>
