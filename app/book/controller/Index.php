@@ -22,8 +22,8 @@
     class Index extends Controller
     {
         public static $redirect_uri = 'http://www.answer2c.cn/book/index/callback';
-        public static $accessKeyId  = 'LTAIk3X6QSiC1yav';
-        public static $accessKeySecret = 'PfYaOr2qPL2Ze3swQ94sTaVgM14fb9';
+        public static $accessKeyId  = '';
+        public static $accessKeySecret = '';
 
         public function index(){
 
@@ -1053,15 +1053,7 @@
 
         }
 
-        public function test()
-        {
-            $patterns = "/\d+\.{1}\d+/"; //第一种
-            $strs="20.01元1";
-            preg_match_all($patterns,$strs,$arr);
-            print_r($arr);
-
-        }
-
+   
 
 
     }
